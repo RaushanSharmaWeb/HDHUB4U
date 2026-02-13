@@ -7,6 +7,10 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <script src="https://pl28706994.effectivegatecpm.com/6b/a9/31/6ba931ae49c8a35680d25c6e82f333bf.js"></script>
+
+    <script src="https://pl28707051.effectivegatecpm.com/57/24/4d/57244d2581d0ac451836fd307e397243.js"></script>
+
     <style>
         /* --- 1. THEME SETTINGS --- */
         :root {
@@ -44,7 +48,6 @@
 
         .menu-icon { font-size: 24px; cursor: pointer; color: white; }
         
-        /* Logo Center mein achha lagega ab */
         .logo { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .logo span { color: var(--primary); }
 
@@ -123,9 +126,10 @@
         .poster-area { position: relative; width: 100%; padding-top: 150%; /* Aspect Ratio */ }
         .poster-area img {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+            z-index: 1; 
         }
 
-        /* Dynamic Tags */
+        /* Tags Visibility Fix */
         .tag-quality {
             position: absolute; top: 0; right: 0;
             background: var(--accent);
@@ -133,15 +137,15 @@
             padding: 3px 8px;
             border-bottom-left-radius: 6px;
             box-shadow: -2px 2px 5px rgba(0,0,0,0.5);
-            z-index: 10;
+            z-index: 10; 
         }
         .tag-lang {
             position: absolute; bottom: 5px; left: 5px;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.9);
             color: var(--primary); font-size: 10px; font-weight: bold;
             padding: 2px 6px; border-radius: 3px;
             border: 1px solid var(--primary);
-            z-index: 10;
+            z-index: 10; 
         }
 
         .card-info { padding: 10px; }
@@ -160,6 +164,15 @@
         .f-links a { color: #aaa; font-size: 13px; }
         .f-links a:hover { color: var(--primary); text-decoration: underline; }
         .copy { color: #555; font-size: 12px; line-height: 1.6; }
+
+        /* AD CONTAINER STYLE */
+        .ad-container {
+            margin: 15px auto;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            padding: 0 10px;
+        }
 
         /* Loader */
         #loader { text-align: center; padding: 40px; color: #666; font-size: 14px; }
@@ -186,7 +199,8 @@
     <header>
         <div class="menu-icon" onclick="openNav()"><i class="fas fa-bars"></i></div>
         <div class="logo">HDHub<span>4u</span></div>
-        <div style="width: 24px;"></div> </header>
+        <div style="width: 24px;"></div>
+    </header>
 
     <div class="search-wrapper">
         <input type="text" id="searchInput" class="search-box" placeholder="Search movies, web series...">
@@ -199,6 +213,11 @@
         <div class="cat-btn" onclick="filterCat('South', this)">South Hindi</div>
         <div class="cat-btn" onclick="filterCat('Web Series', this)">Web Series</div>
         <div class="cat-btn" onclick="filterCat('Dual Audio', this)">Dual Audio</div>
+    </div>
+
+    <div class="ad-container">
+        <script async="async" data-cfasync="false" src="https://pl28707044.effectivegatecpm.com/74abe61b5683b89c44e7e9bf8e646614/invoke.js"></script>
+        <div id="container-74abe61b5683b89c44e7e9bf8e646614"></div>
     </div>
 
     <div class="grid-container" id="movieGrid"></div>
@@ -226,7 +245,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
-        // 🔥 FIREBASE CONFIGURATION 🔥
         const firebaseConfig = {
             apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
             authDomain: "education-921c2.firebaseapp.com",
@@ -244,7 +262,6 @@
         const loader = document.getElementById('loader');
         let allMovies = [];
 
-        // 1. Fetch Movies
         onValue(ref(db, 'movies'), (snapshot) => {
             const data = snapshot.val();
             grid.innerHTML = "";
@@ -252,7 +269,6 @@
             allMovies = [];
 
             if(data) {
-                // Object to Array & Reverse (Latest first)
                 Object.keys(data).forEach(key => {
                     allMovies.push({ id: key, ...data[key] });
                 });
@@ -263,7 +279,6 @@
             }
         });
 
-        // 2. Render Function (HTML Generator)
         window.render = function(list) {
             grid.innerHTML = "";
             if(list.length === 0) {
@@ -276,7 +291,6 @@
                 card.className = 'card';
                 card.onclick = () => location.href = `details.html?id=${m.id}`;
 
-                // Default Fallbacks
                 const poster = m.poster || 'https://via.placeholder.com/200x300?text=No+Poster';
                 const quality = m.quality || 'HD';
                 const lang = m.language || 'Hindi';
@@ -301,22 +315,17 @@
             });
         }
 
-        // 3. Search Filter
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             const filtered = allMovies.filter(m => m.title.toLowerCase().includes(term));
             render(filtered);
         });
 
-        // 4. Category Filter
         window.filterCat = function(category, btn) {
-            // UI Update (Active Class)
             if(btn) {
                 document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
-            
-            // Logic
             if(category === 'All') {
                 render(allMovies);
             } else {
@@ -327,5 +336,4 @@
     </script>
 
 </body>
-
 </html>

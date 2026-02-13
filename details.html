@@ -7,8 +7,12 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <script src="https://pl28706994.effectivegatecpm.com/6b/a9/31/6ba931ae49c8a35680d25c6e82f333bf.js"></script>
+
+    <script src="https://pl28707051.effectivegatecpm.com/57/24/4d/57244d2581d0ac451836fd307e397243.js"></script>
+
     <style>
-        /* --- 1. GLOBAL VARIABLES & RESET --- */
+        /* --- 1. GLOBAL VARIABLES --- */
         :root {
             --bg-dark: #0f171e;
             --card-bg: #1b2530;
@@ -36,7 +40,7 @@
             top: 0;
             width: 100%;
             padding: 15px 20px;
-            background: rgba(15, 23, 30, 0.85); /* Glass Effect */
+            background: rgba(15, 23, 30, 0.9); /* Dark Glass Effect */
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             z-index: 1000;
@@ -59,7 +63,7 @@
         }
         .back-btn:hover { background: var(--primary); }
 
-        /* --- 3. HERO SECTION (Poster & Info) --- */
+        /* --- 3. HERO SECTION --- */
         .hero {
             position: relative;
             padding: 100px 20px 40px 20px;
@@ -69,7 +73,6 @@
             justify-content: center;
         }
 
-        /* Blurred Background Image */
         .hero-bg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -77,7 +80,7 @@
             background-position: center;
             filter: blur(25px) brightness(0.3);
             z-index: 0;
-            transform: scale(1.1); /* Edges hide karne ke liye */
+            transform: scale(1.1);
         }
 
         .content-wrapper {
@@ -90,20 +93,18 @@
             align-items: flex-start;
         }
 
-        /* Poster Image */
         .poster-card {
             width: 250px;
             border-radius: 10px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.6);
             border: 1px solid rgba(255,255,255,0.2);
-            flex-shrink: 0; /* Shrink na ho */
+            flex-shrink: 0;
         }
 
         .movie-info { flex: 1; }
 
         h1 { font-size: 38px; margin: 0 0 10px 0; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 
-        /* Meta Tags (Badges) */
         .badges { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
         
         .badge {
@@ -129,11 +130,20 @@
             font-size: 15px;
         }
 
-        /* --- 4. DOWNLOAD LINKS SECTION --- */
+        /* --- 4. ADS & DOWNLOAD LINKS --- */
         .links-section {
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
+        }
+
+        .ad-container {
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px;
+            border: 1px dashed #444; /* Thoda highlight kiya hai taaki alag dikhe */
+            border-radius: 5px;
+            background: #111;
         }
 
         .section-title {
@@ -150,7 +160,7 @@
 
         .link-grid {
             display: grid;
-            grid-template-columns: 1fr; /* Mobile par 1 column */
+            grid-template-columns: 1fr;
             gap: 15px;
         }
 
@@ -186,7 +196,6 @@
             text-transform: uppercase;
         }
 
-        /* --- 5. RESPONSIVE DESIGN --- */
         @media (max-width: 768px) {
             .content-wrapper { flex-direction: column; align-items: center; text-align: center; }
             .poster-card { width: 180px; }
@@ -195,7 +204,6 @@
             .hero { padding-top: 80px; }
         }
 
-        /* Loader */
         #loader { text-align: center; margin-top: 100px; font-size: 18px; color: #666; }
     </style>
 </head>
@@ -214,20 +222,16 @@
         
         <div class="hero">
             <div class="hero-bg" id="bgImg"></div>
-
             <div class="content-wrapper">
                 <img src="" id="poster" class="poster-card" onerror="this.src='https://via.placeholder.com/250x375'">
-                
                 <div class="movie-info">
                     <h1 id="title">Movie Title</h1>
-                    
                     <div class="badges">
                         <span class="badge b-quality" id="quality">HD</span>
                         <span class="badge b-lang" id="lang">Hindi</span>
                         <span class="badge b-cat" id="cat">Category</span>
                         <div class="badge b-rating"><i class="fas fa-star"></i> <span id="rating">0.0</span></div>
                     </div>
-
                     <div class="plot-box">
                         <strong style="color:white; display:block; margin-bottom:5px;">Synopsis:</strong>
                         <span id="plot">Loading story...</span>
@@ -237,6 +241,12 @@
         </div>
 
         <div class="links-section">
+            <div class="ad-container">
+                <p style="color:#555; font-size:10px; margin:0 0 5px 0;">SPONSORED</p>
+                <script async="async" data-cfasync="false" src="https://pl28707044.effectivegatecpm.com/74abe61b5683b89c44e7e9bf8e646614/invoke.js"></script>
+                <div id="container-74abe61b5683b89c44e7e9bf8e646614"></div>
+            </div>
+
             <div class="section-title">
                 <i class="fas fa-download"></i> Download Links
             </div>
@@ -251,7 +261,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
 
-        // 1. Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
             authDomain: "education-921c2.firebaseapp.com",
@@ -264,17 +273,14 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // 2. Get Movie ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const movieId = urlParams.get('id');
 
-        // 3. Fetch Data
         if(movieId) {
             get(ref(db, 'movies/' + movieId)).then((snapshot) => {
                 if (snapshot.exists()) {
-                    const movie = snapshot.val();
-                    renderPage(movie);
+                    const m = snapshot.val();
+                    renderPage(m);
                 } else {
                     document.getElementById('loader').innerHTML = "Movie Not Found. <br> <a href='index.html' style='color:white'>Go Home</a>";
                 }
@@ -286,24 +292,18 @@
             document.getElementById('loader').innerHTML = "Invalid URL. <br> <a href='index.html' style='color:white'>Go Home</a>";
         }
 
-        // 4. Render Function
         function renderPage(m) {
-            // Text Data
             document.getElementById('title').innerText = m.title;
             document.getElementById('plot').innerText = m.plot || "No description available.";
             document.getElementById('rating').innerText = m.rating || "N/A";
-            
-            // Badges Data (Admin se aayega)
             document.getElementById('quality').innerText = m.quality || "HD";
             document.getElementById('lang').innerText = m.language || "Hindi";
             document.getElementById('cat').innerText = m.category || "Movie";
 
-            // Images
             const posterUrl = m.poster || "https://via.placeholder.com/250x375";
             document.getElementById('poster').src = posterUrl;
             document.getElementById('bgImg').style.backgroundImage = `url('${posterUrl}')`;
 
-            // Render Links
             const linksContainer = document.getElementById('linksList');
             linksContainer.innerHTML = "";
 
@@ -314,7 +314,6 @@
                     btn.target = "_blank";
                     btn.className = 'd-btn';
                     
-                    // Smart Icon selection based on link name
                     let iconClass = "fa-video";
                     if(link.name.toLowerCase().includes("drive")) iconClass = "fa-google-drive";
                     if(link.name.toLowerCase().includes("4k")) iconClass = "fa-film";
@@ -335,7 +334,6 @@
                 linksContainer.innerHTML = "<p style='color:#777; width:100%; text-align:center;'>No download links available yet.</p>";
             }
 
-            // UI Reveal
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
         }
