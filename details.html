@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Movie - HDHub Clone</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- 1. GLOBAL VARIABLES & RESET --- */
+        :root {
+            --bg-dark: #0f171e;
+            --card-bg: #1b2530;
+            --primary: #e50914; /* Netflix Red */
+            --secondary: #f5c518; /* IMDb Yellow */
+            --text-main: #ffffff;
+            --text-gray: #b3b3b3;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 50px;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; padding: 0; }
+
+        /* --- 2. HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(15, 23, 30, 0.85); /* Glass Effect */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .logo { font-size: 24px; font-weight: 900; color: white; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
+
+        .back-btn {
+            font-size: 16px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--primary); }
+
+        /* --- 3. HERO SECTION (Poster & Info) --- */
+        .hero {
+            position: relative;
+            padding: 100px 20px 40px 20px;
+            overflow: hidden;
+            min-height: 400px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Blurred Background Image */
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(25px) brightness(0.3);
+            z-index: 0;
+            transform: scale(1.1); /* Edges hide karne ke liye */
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        /* Poster Image */
+        .poster-card {
+            width: 250px;
+            border-radius: 10px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.2);
+            flex-shrink: 0; /* Shrink na ho */
+        }
+
+        .movie-info { flex: 1; }
+
+        h1 { font-size: 38px; margin: 0 0 10px 0; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+
+        /* Meta Tags (Badges) */
+        .badges { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .b-quality { background: var(--primary); color: white; }
+        .b-lang { background: transparent; border: 1px solid #fff; color: #fff; }
+        .b-cat { background: #2980b9; color: white; }
+        .b-rating { color: var(--secondary); display: flex; align-items: center; gap: 5px; font-size: 14px; }
+
+        .plot-box {
+            background: rgba(0,0,0,0.4);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+            line-height: 1.6;
+            color: #ddd;
+            font-size: 15px;
+        }
+
+        /* --- 4. DOWNLOAD LINKS SECTION --- */
+        .links-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--secondary);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile par 1 column */
+            gap: 15px;
+        }
+
+        .d-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .d-btn:hover {
+            background: #232f3e;
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .d-left { display: flex; align-items: center; gap: 15px; }
+        .d-icon { color: var(--primary); font-size: 20px; }
+        .d-title { font-weight: bold; font-size: 15px; }
+        .d-sub { font-size: 12px; color: var(--text-gray); }
+
+        .d-action {
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* --- 5. RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            .content-wrapper { flex-direction: column; align-items: center; text-align: center; }
+            .poster-card { width: 180px; }
+            .badges { justify-content: center; }
+            h1 { font-size: 28px; }
+            .hero { padding-top: 80px; }
+        }
+
+        /* Loader */
+        #loader { text-align: center; margin-top: 100px; font-size: 18px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="back-btn" onclick="location.href='index.html'">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </div>
+        <div class="logo">HDHub<span>4u</span></div>
+    </header>
+
+    <div id="loader"><i class="fas fa-circle-notch fa-spin"></i> Loading Details...</div>
+
+    <div id="mainContent" style="display: none;">
+        
+        <div class="hero">
+            <div class="hero-bg" id="bgImg"></div>
+
+            <div class="content-wrapper">
+                <img src="" id="poster" class="poster-card" onerror="this.src='https://via.placeholder.com/250x375'">
+                
+                <div class="movie-info">
+                    <h1 id="title">Movie Title</h1>
+                    
+                    <div class="badges">
+                        <span class="badge b-quality" id="quality">HD</span>
+                        <span class="badge b-lang" id="lang">Hindi</span>
+                        <span class="badge b-cat" id="cat">Category</span>
+                        <div class="badge b-rating"><i class="fas fa-star"></i> <span id="rating">0.0</span></div>
+                    </div>
+
+                    <div class="plot-box">
+                        <strong style="color:white; display:block; margin-bottom:5px;">Synopsis:</strong>
+                        <span id="plot">Loading story...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="links-section">
+            <div class="section-title">
+                <i class="fas fa-download"></i> Download Links
+            </div>
+            
+            <div class="link-grid" id="linksList">
+                </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        // 1. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
+            authDomain: "education-921c2.firebaseapp.com",
+            databaseURL: "https://education-921c2-default-rtdb.firebaseio.com",
+            projectId: "education-921c2",
+            storageBucket: "education-921c2.firebasestorage.app",
+            messagingSenderId: "529451695233",
+            appId: "1:529451695233:web:4940277f4d953c05886180"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 2. Get Movie ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('id');
+
+        // 3. Fetch Data
+        if(movieId) {
+            get(ref(db, 'movies/' + movieId)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const movie = snapshot.val();
+                    renderPage(movie);
+                } else {
+                    document.getElementById('loader').innerHTML = "Movie Not Found. <br> <a href='index.html' style='color:white'>Go Home</a>";
+                }
+            }).catch((error) => {
+                console.error(error);
+                document.getElementById('loader').innerHTML = "Error loading data.";
+            });
+        } else {
+            document.getElementById('loader').innerHTML = "Invalid URL. <br> <a href='index.html' style='color:white'>Go Home</a>";
+        }
+
+        // 4. Render Function
+        function renderPage(m) {
+            // Text Data
+            document.getElementById('title').innerText = m.title;
+            document.getElementById('plot').innerText = m.plot || "No description available.";
+            document.getElementById('rating').innerText = m.rating || "N/A";
+            
+            // Badges Data (Admin se aayega)
+            document.getElementById('quality').innerText = m.quality || "HD";
+            document.getElementById('lang').innerText = m.language || "Hindi";
+            document.getElementById('cat').innerText = m.category || "Movie";
+
+            // Images
+            const posterUrl = m.poster || "https://via.placeholder.com/250x375";
+            document.getElementById('poster').src = posterUrl;
+            document.getElementById('bgImg').style.backgroundImage = `url('${posterUrl}')`;
+
+            // Render Links
+            const linksContainer = document.getElementById('linksList');
+            linksContainer.innerHTML = "";
+
+            if(m.links && m.links.length > 0) {
+                m.links.forEach(link => {
+                    const btn = document.createElement('a');
+                    btn.href = link.url;
+                    btn.target = "_blank";
+                    btn.className = 'd-btn';
+                    
+                    // Smart Icon selection based on link name
+                    let iconClass = "fa-video";
+                    if(link.name.toLowerCase().includes("drive")) iconClass = "fa-google-drive";
+                    if(link.name.toLowerCase().includes("4k")) iconClass = "fa-film";
+
+                    btn.innerHTML = `
+                        <div class="d-left">
+                            <i class="fas ${iconClass} d-icon"></i>
+                            <div>
+                                <div class="d-title">${link.name}</div>
+                                <div class="d-sub">High Speed Server</div>
+                            </div>
+                        </div>
+                        <div class="d-action">Get Link <i class="fas fa-arrow-right"></i></div>
+                    `;
+                    linksContainer.appendChild(btn);
+                });
+            } else {
+                linksContainer.innerHTML = "<p style='color:#777; width:100%; text-align:center;'>No download links available yet.</p>";
+            }
+
+            // UI Reveal
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

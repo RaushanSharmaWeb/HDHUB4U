@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDHub Clone - Home</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- 1. THEME SETTINGS --- */
+        :root {
+            --bg: #0f171e;
+            --card-bg: #1b2530;
+            --primary: #f5c518; /* Yellow */
+            --accent: #e50914;  /* Red */
+            --text-main: #ffffff;
+            --text-sub: #b3b3b3;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding-bottom: 60px;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* --- 2. HEADER & SIDEBAR --- */
+        header {
+            background: #000;
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .menu-icon { font-size: 24px; cursor: pointer; color: white; }
+        
+        /* Logo Center mein achha lagega ab */
+        .logo { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .logo span { color: var(--primary); }
+
+        /* Sidebar Styling */
+        .sidebar {
+            height: 100%; width: 0; position: fixed; z-index: 200; top: 0; left: 0;
+            background-color: #111; overflow-x: hidden; transition: 0.3s; padding-top: 60px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.7);
+        }
+        .sidebar a { padding: 12px 25px; text-decoration: none; font-size: 16px; color: #ddd; display: block; transition: 0.3s; border-bottom: 1px solid #222; }
+        .sidebar a:hover { color: var(--primary); background: #222; padding-left: 30px; }
+        .closebtn { position: absolute; top: 10px; right: 20px; font-size: 30px; border: none; background: none; color: white; cursor: pointer; }
+
+        /* --- 3. SEARCH & CATEGORIES --- */
+        .search-wrapper { padding: 15px; background: #161f28; }
+        .search-box {
+            width: 100%;
+            background: #232f3e;
+            border: 1px solid #444;
+            padding: 12px 15px;
+            border-radius: 25px;
+            color: white;
+            outline: none;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        .search-box:focus { border-color: var(--primary); }
+
+        .nav-scroller {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 10px 15px;
+            background: #0f171e;
+            scrollbar-width: none;
+        }
+        .nav-scroller::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: #2b3947;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #333;
+            color: #ccc;
+            transition: 0.2s;
+        }
+        .cat-btn.active, .cat-btn:hover {
+            background: var(--primary);
+            color: black;
+            font-weight: bold;
+            border-color: var(--primary);
+        }
+
+        /* --- 4. MOVIE GRID --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 5px 15px rgba(245, 197, 24, 0.2); }
+
+        .poster-area { position: relative; width: 100%; padding-top: 150%; /* Aspect Ratio */ }
+        .poster-area img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* Dynamic Tags */
+        .tag-quality {
+            position: absolute; top: 0; right: 0;
+            background: var(--accent);
+            color: white; font-size: 10px; font-weight: bold;
+            padding: 3px 8px;
+            border-bottom-left-radius: 6px;
+            box-shadow: -2px 2px 5px rgba(0,0,0,0.5);
+        }
+        .tag-lang {
+            position: absolute; bottom: 5px; left: 5px;
+            background: rgba(0,0,0,0.85);
+            color: var(--primary); font-size: 10px; font-weight: bold;
+            padding: 2px 6px; border-radius: 3px;
+            border: 1px solid var(--primary);
+        }
+
+        .card-info { padding: 10px; }
+        .title { font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #eee; font-weight: 600; }
+        .meta { font-size: 11px; color: #aaa; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- 5. FOOTER --- */
+        footer {
+            background: #000;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 2px solid #333;
+            margin-top: 20px;
+        }
+        .f-links { margin-bottom: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .f-links a { color: #aaa; font-size: 13px; }
+        .f-links a:hover { color: var(--primary); text-decoration: underline; }
+        .copy { color: #555; font-size: 12px; line-height: 1.6; }
+
+        /* Loader */
+        #loader { text-align: center; padding: 40px; color: #666; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="mySidebar" class="sidebar">
+        <button class="closebtn" onclick="closeNav()">&times;</button>
+        <div style="padding: 0 20px; margin-bottom: 20px; color: var(--primary); font-weight: bold; text-transform: uppercase;">Menu</div>
+        
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="about.html"><i class="fas fa-info-circle"></i> About Us</a>
+        <a href="dmca.html"><i class="fas fa-copyright"></i> DMCA Policy</a>
+        <a href="request.html"><i class="fas fa-paper-plane"></i> Request Movie</a>
+        
+        <div style="padding: 20px 20px 10px; color: var(--primary); font-weight: bold; text-transform: uppercase; border-top: 1px solid #333; margin-top: 10px;">Categories</div>
+        <a href="#" onclick="filterCat('Bollywood'); closeNav()">Bollywood</a>
+        <a href="#" onclick="filterCat('Hollywood'); closeNav()">Hollywood</a>
+        <a href="#" onclick="filterCat('South'); closeNav()">South Movies</a>
+        <a href="#" onclick="filterCat('Web Series'); closeNav()">Web Series</a>
+    </div>
+
+    <header>
+        <div class="menu-icon" onclick="openNav()"><i class="fas fa-bars"></i></div>
+        <div class="logo">HDHub<span>4u</span></div>
+        <div style="width: 24px;"></div> </header>
+
+    <div class="search-wrapper">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search movies, web series...">
+    </div>
+
+    <div class="nav-scroller">
+        <div class="cat-btn active" onclick="filterCat('All', this)">All</div>
+        <div class="cat-btn" onclick="filterCat('Bollywood', this)">Bollywood</div>
+        <div class="cat-btn" onclick="filterCat('Hollywood', this)">Hollywood</div>
+        <div class="cat-btn" onclick="filterCat('South', this)">South Hindi</div>
+        <div class="cat-btn" onclick="filterCat('Web Series', this)">Web Series</div>
+        <div class="cat-btn" onclick="filterCat('Dual Audio', this)">Dual Audio</div>
+    </div>
+
+    <div class="grid-container" id="movieGrid"></div>
+    <div id="loader">Loading Movies...</div>
+
+    <footer>
+        <div class="f-links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="dmca.html">DMCA</a>
+            <a href="request.html">Request Movie</a>
+        </div>
+        <div class="copy">
+            &copy; 2026 HDHub Clone. All rights reserved.<br>
+            Disclaimer: This site does not store any files on its server.
+        </div>
+    </footer>
+
+    <script>
+        function openNav() { document.getElementById("mySidebar").style.width = "280px"; }
+        function closeNav() { document.getElementById("mySidebar").style.width = "0"; }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        // 🔥 FIREBASE CONFIGURATION 🔥
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
+            authDomain: "education-921c2.firebaseapp.com",
+            databaseURL: "https://education-921c2-default-rtdb.firebaseio.com",
+            projectId: "education-921c2",
+            storageBucket: "education-921c2.firebasestorage.app",
+            messagingSenderId: "529451695233",
+            appId: "1:529451695233:web:4940277f4d953c05886180"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const grid = document.getElementById('movieGrid');
+        const loader = document.getElementById('loader');
+        let allMovies = [];
+
+        // 1. Fetch Movies
+        onValue(ref(db, 'movies'), (snapshot) => {
+            const data = snapshot.val();
+            grid.innerHTML = "";
+            loader.style.display = 'none';
+            allMovies = [];
+
+            if(data) {
+                // Object to Array & Reverse (Latest first)
+                Object.keys(data).forEach(key => {
+                    allMovies.push({ id: key, ...data[key] });
+                });
+                allMovies.reverse();
+                render(allMovies);
+            } else {
+                grid.innerHTML = "<p style='text-align:center; width:100%; color:#888;'>No movies found.</p>";
+            }
+        });
+
+        // 2. Render Function (HTML Generator)
+        window.render = function(list) {
+            grid.innerHTML = "";
+            if(list.length === 0) {
+                grid.innerHTML = "<p style='text-align:center; width:100%; color:#888;'>No matches found.</p>";
+                return;
+            }
+
+            list.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => location.href = `details.html?id=${m.id}`;
+
+                // Default Fallbacks
+                const poster = m.poster || 'https://via.placeholder.com/200x300?text=No+Poster';
+                const quality = m.quality || 'HD';
+                const lang = m.language || 'Hindi';
+                const rating = m.rating || 'N/A';
+                const year = m.year || '2024';
+
+                card.innerHTML = `
+                    <div class="poster-area">
+                        <div class="tag-quality">${quality}</div>
+                        <div class="tag-lang">${lang}</div>
+                        <img src="${poster}" loading="lazy" alt="${m.title}">
+                    </div>
+                    <div class="card-info">
+                        <p class="title">${m.title}</p>
+                        <div class="meta">
+                            <span>${year}</span>
+                            <span style="color:var(--primary); font-weight:bold;"><i class="fas fa-star"></i> ${rating}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 3. Search Filter
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allMovies.filter(m => m.title.toLowerCase().includes(term));
+            render(filtered);
+        });
+
+        // 4. Category Filter
+        window.filterCat = function(category, btn) {
+            // UI Update (Active Class)
+            if(btn) {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            
+            // Logic
+            if(category === 'All') {
+                render(allMovies);
+            } else {
+                const filtered = allMovies.filter(m => m.category === category);
+                render(filtered);
+            }
+        }
+    </script>
+
+</body>
+</html>

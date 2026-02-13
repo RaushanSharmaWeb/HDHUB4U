@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request A Movie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #0f171e; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .header { border-bottom: 2px solid #f5c518; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .logo span { color: #f5c518; }
+        .box { max-width: 500px; margin: 0 auto; background: #1b2530; padding: 30px; border-radius: 10px; border: 1px solid #333; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #232f3e; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #e50914; color: white; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #ff0f1f; }
+        .back-btn { display: inline-block; margin-top: 20px; color: #aaa; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">HDHub<span>4u</span></div>
+    </div>
+
+    <div class="box">
+        <h2><i class="fas fa-paper-plane"></i> Request A Movie</h2>
+        <p style="color:#ccc; font-size:14px;">We will upload it within 24 hours!</p>
+        
+        <form id="reqForm">
+            <input type="text" id="mName" placeholder="Movie Name (e.g. Pathaan)" required>
+            <textarea id="mMsg" rows="3" placeholder="Any extra details (Optional)"></textarea>
+            <button type="submit" id="submitBtn">Send Request</button>
+        </form>
+    </div>
+
+    <a href="index.html" class="back-btn">← Back to Home</a>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
+            authDomain: "education-921c2.firebaseapp.com",
+            databaseURL: "https://education-921c2-default-rtdb.firebaseio.com",
+            projectId: "education-921c2",
+            storageBucket: "education-921c2.firebasestorage.app",
+            messagingSenderId: "529451695233",
+            appId: "1:529451695233:web:4940277f4d953c05886180"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.getElementById('reqForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+
+            const name = document.getElementById('mName').value;
+            const msg = document.getElementById('mMsg').value;
+            
+            // 1. Fetch IP Address
+            let userIP = "Unknown";
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                userIP = data.ip;
+            } catch (error) {
+                console.error("IP Error:", error);
+            }
+
+            // 2. Send to Firebase
+            push(ref(db, 'requests'), {
+                movieName: name,
+                message: msg,
+                ip: userIP, // Saving IP here
+                date: new Date().toLocaleString()
+            }).then(() => {
+                alert("Request Sent! IP Recorded.");
+                e.target.reset();
+                btn.innerText = "Send Request";
+                btn.disabled = false;
+            }).catch(err => {
+                alert("Error: " + err.message);
+                btn.disabled = false;
+            });
+        });
+    </script>
+
+</body>
+</html>

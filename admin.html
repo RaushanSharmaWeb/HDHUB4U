@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - HDHub Clone</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #28a745; --secondary: #007bff; --dark: #343a40; --danger: #dc3545; --warning: #ffc107; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        
+        /* --- 🔒 LOGIN STYLES --- */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1a1a2e; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .login-box {
+            background: white; padding: 30px; border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 90%; max-width: 350px; text-align: center;
+        }
+        .login-box h2 { margin-top: 0; color: #333; }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .login-box button { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .error-msg { color: red; font-size: 13px; margin-top: 10px; display: none; }
+
+        /* --- ⚙️ DASHBOARD STYLES --- */
+        .container { 
+            max-width: 900px; margin: 0 auto; background: white; 
+            padding: 20px; border-radius: 12px; display: none; /* Hidden until login */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        
+        h2, h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: var(--dark); }
+        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; font-size: 14px; }
+        
+        /* Inputs & Grid */
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        @media (max-width: 768px) { .row { grid-template-columns: 1fr; } } /* Mobile Fix */
+
+        /* Buttons */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .btn-save { background: var(--primary); font-size: 16px; }
+        .btn-add { background: #6c757d; width: auto; font-size: 13px; padding: 8px 15px; }
+        
+        /* Header Buttons */
+        .header-btns { display: flex; gap: 10px; }
+        .btn-req { background: #6f42c1; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-logout { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+        /* Links Row */
+        .link-row { display: flex; gap: 5px; background: #f8f9fa; padding: 10px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #ddd; align-items: center; }
+        @media (max-width: 768px) { .link-row { flex-direction: column; } }
+
+        /* Movie List Card */
+        .movie-card { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: #fff; }
+        .movie-card:hover { background: #fafafa; }
+        .m-thumb { display: flex; align-items: center; gap: 10px; }
+        .m-thumb img { width: 40px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
+
+        /* --- 📩 REQUEST MODAL STYLES --- */
+        .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 600px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: black; }
+        
+        .req-item { background: #f8f9fa; border-left: 4px solid var(--secondary); padding: 12px; margin-bottom: 10px; border-radius: 4px; }
+        .req-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .req-ip { font-size: 11px; background: #e2e6ea; padding: 2px 6px; border-radius: 4px; color: #555; }
+        .req-msg { font-size: 14px; color: #333; font-style: italic; display: block; margin: 5px 0; }
+        .req-date { font-size: 11px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
+            <p style="color:#666; font-size:14px;">Secure Access Only</p>
+            <input type="email" id="email" placeholder="Admin Email">
+            <input type="password" id="password" placeholder="Password">
+            <button id="btnLogin">Login</button>
+            <p class="error-msg" id="loginError"></p>
+        </div>
+    </div>
+
+    <div class="container" id="dashboard">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <h2 style="border:none; margin:0; padding:0;">Admin Dashboard</h2>
+            <div class="header-btns">
+                <button class="btn-req" onclick="openReqModal()"><i class="fas fa-bell"></i> Requests</button>
+                <button class="btn-logout" id="btnLogout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+
+        <div style="background:#e9ecef; padding:15px; border-radius:8px; margin-bottom: 20px;">
+            <label style="margin-top:0;">Auto-Fill from OMDb</label>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="searchName" placeholder="Enter movie name..." style="margin:0;">
+                <button id="btnSearch" style="background:var(--secondary); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Search</button>
+            </div>
+        </div>
+
+        <input type="hidden" id="editKey">
+
+        <label>Movie Title</label>
+        <input type="text" id="mTitle">
+
+        <div class="row">
+            <div>
+                <label>Category</label>
+                <select id="mCategory">
+                    <option value="Bollywood">Bollywood</option>
+                    <option value="Hollywood">Hollywood</option>
+                    <option value="South">South Hindi</option>
+                    <option value="Web Series">Web Series</option>
+                    <option value="Dual Audio">Dual Audio</option>
+                </select>
+            </div>
+            <div>
+                <label>Language</label>
+                <select id="mLang">
+                    <option value="Hindi">Hindi</option>
+                    <option value="English">English</option>
+                    <option value="Dual Audio">Dual Audio</option>
+                    <option value="Multi Audio">Multi Audio</option>
+                </select>
+            </div>
+            <div>
+                <label>Quality</label>
+                <select id="mQuality">
+                    <option value="720p HEVC">720p HEVC</option>
+                    <option value="1080p FHD">1080p FHD</option>
+                    <option value="480p SD">480p SD</option>
+                    <option value="4K UHD">4K UHD</option>
+                    <option value="CamRip">CamRip</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div><label>Poster URL</label><input type="text" id="mPoster"></div>
+            <div><label>Year</label><input type="text" id="mYear"></div>
+            <div><label>IMDb Rating</label><input type="text" id="mRating"></div>
+        </div>
+
+        <label>Plot / Storyline</label>
+        <textarea id="mPlot" rows="3"></textarea>
+
+        <h3>Download Links</h3>
+        <div id="linksContainer"></div>
+        <button class="btn btn-add" id="btnAddRow"><i class="fas fa-plus"></i> Add Link</button>
+
+        <button class="btn btn-save" id="btnSave">Publish Movie</button>
+
+        <h3>Managed Inventory</h3>
+        <div id="movieList">Loading movies...</div>
+    </div>
+
+    <div id="reqModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReqModal()">&times;</span>
+            <h3 style="color:var(--secondary); margin-top:0;"><i class="fas fa-envelope-open-text"></i> User Requests</h3>
+            <div id="reqList">Loading requests...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        // CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
+            authDomain: "education-921c2.firebaseapp.com",
+            databaseURL: "https://education-921c2-default-rtdb.firebaseio.com",
+            projectId: "education-921c2",
+            storageBucket: "education-921c2.firebasestorage.app",
+            messagingSenderId: "529451695233",
+            appId: "1:529451695233:web:4940277f4d953c05886180"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const OMDB_KEY = "c644c28a";
+
+        // --- 🔐 AUTHENTICATION ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                loadMovies(); // Login hone ke baad hi data load hoga
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        });
+
+        document.getElementById('btnLogin').onclick = () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, e, p).catch(err => {
+                const box = document.getElementById('loginError');
+                box.style.display = 'block'; box.innerText = "Error: " + err.message;
+            });
+        };
+
+        document.getElementById('btnLogout').onclick = () => signOut(auth).then(() => location.reload());
+
+        // --- 📩 REQUESTS LOGIC ---
+        window.openReqModal = () => {
+            document.getElementById('reqModal').style.display = "block";
+            onValue(ref(db, 'requests'), (snap) => {
+                const list = document.getElementById('reqList');
+                list.innerHTML = "";
+                const data = snap.val();
+                if(data) {
+                    Object.keys(data).reverse().forEach(key => {
+                        const r = data[key];
+                        const div = document.createElement('div');
+                        div.className = 'req-item';
+                        div.innerHTML = `
+                            <div class="req-header">
+                                <strong>${r.movieName}</strong>
+                                <span class="req-date">${r.date || 'Just now'}</span>
+                            </div>
+                            <span class="req-msg">"${r.message || 'No message'}"</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                                <span class="req-ip"><i class="fas fa-globe"></i> ${r.ip || 'Unknown IP'}</span>
+                                <button onclick="window.delReq('${key}')" style="background:var(--danger); color:white; border:none; padding:4px 8px; border-radius:3px; cursor:pointer; font-size:11px;">Delete</button>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                } else { list.innerHTML = "<p style='text-align:center; color:#777;'>No pending requests.</p>"; }
+            });
+        };
+        window.closeReqModal = () => document.getElementById('reqModal').style.display = "none";
+        window.delReq = (key) => remove(ref(db, 'requests/' + key));
+
+        // --- 🎬 MOVIE MANAGEMENT ---
+        function createLinkRow(name="", url="") {
+            const div = document.createElement('div');
+            div.className = 'link-row';
+            div.innerHTML = `
+                <select style="flex:1" onchange="this.nextElementSibling.value=this.value">
+                    <option value="">Link Quality</option>
+                    <option value="480p">480p</option>
+                    <option value="720p">720p</option>
+                    <option value="1080p">1080p</option>
+                    <option value="Online">Watch Online</option>
+                    <option value="G-Drive">G-Drive</option>
+                </select>
+                <input type="text" placeholder="Name (e.g. 720p)" class="l-name" value="${name}" style="flex:1; margin:0">
+                <input type="text" placeholder="URL Link" class="l-url" value="${url}" style="flex:2; margin:0">
+                <i class="fas fa-trash remove-link" style="color:red; cursor:pointer; padding:10px;" onclick="this.parentElement.remove()"></i>
+            `;
+            document.getElementById('linksContainer').appendChild(div);
+        }
+        document.getElementById('btnAddRow').onclick = () => createLinkRow();
+        createLinkRow();
+
+        // OMDb Search
+        document.getElementById('btnSearch').onclick = async () => {
+            const name = document.getElementById('searchName').value;
+            if(!name) return;
+            const res = await fetch(`https://www.omdbapi.com/?t=${name}&apikey=${OMDB_KEY}`);
+            const data = await res.json();
+            if(data.Response === "True") {
+                document.getElementById('mTitle').value = data.Title; document.getElementById('mPoster').value = data.Poster; document.getElementById('mYear').value = data.Year; document.getElementById('mRating').value = data.imdbRating; document.getElementById('mPlot').value = data.Plot;
+            } else { alert("Movie not found!"); }
+        };
+
+        // Save / Update
+        document.getElementById('btnSave').onclick = () => {
+            const key = document.getElementById('editKey').value;
+            const links = [];
+            document.querySelectorAll('.link-row').forEach(r => {
+                const n = r.querySelector('.l-name').value;
+                const u = r.querySelector('.l-url').value;
+                if(n && u) links.push({name:n, url:u});
+            });
+
+            const data = {
+                title: document.getElementById('mTitle').value,
+                category: document.getElementById('mCategory').value,
+                language: document.getElementById('mLang').value,
+                quality: document.getElementById('mQuality').value,
+                poster: document.getElementById('mPoster').value,
+                year: document.getElementById('mYear').value,
+                rating: document.getElementById('mRating').value,
+                plot: document.getElementById('mPlot').value,
+                links: links,
+                updated: Date.now()
+            };
+
+            if(key) update(ref(db, 'movies/' + key), data).then(() => { alert("Movie Updated!"); reset(); });
+            else push(ref(db, 'movies'), data).then(() => { alert("Movie Published!"); reset(); });
+        };
+
+        function reset() {
+            document.getElementById('editKey').value = ""; document.getElementById('btnSave').innerText = "Publish Movie"; document.getElementById('mTitle').value = ""; document.getElementById('mPoster').value = ""; document.getElementById('mYear').value = ""; document.getElementById('mRating').value = ""; document.getElementById('mPlot').value = ""; document.getElementById('linksContainer').innerHTML = ""; createLinkRow();
+        }
+
+        // List Inventory
+        function loadMovies() {
+            onValue(ref(db, 'movies'), (snap) => {
+                const list = document.getElementById('movieList');
+                list.innerHTML = "";
+                const data = snap.val();
+                if(data) {
+                    Object.keys(data).reverse().forEach(key => {
+                        const m = data[key];
+                        const div = document.createElement('div');
+                        div.className = 'movie-card';
+                        div.innerHTML = `
+                            <div class="m-thumb"><img src="${m.poster}"><div><strong>${m.title}</strong><br><small style="color:#666">${m.quality} | ${m.language}</small></div></div>
+                            <div>
+                                <button onclick="window.edit('${key}')" style="background:var(--warning); border:none; padding:5px 10px; border-radius:3px; cursor:pointer; margin-right:5px;">Edit</button>
+                                <button onclick="window.del('${key}')" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Del</button>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                } else { list.innerHTML = "<p style='text-align:center;color:#888'>No movies yet.</p>"; }
+            });
+        }
+
+        // Global functions for Edit/Delete
+        window.edit = (key) => {
+            onValue(ref(db, 'movies/' + key), (snap) => {
+                const m = snap.val();
+                document.getElementById('editKey').value = key;
+                document.getElementById('btnSave').innerText = "Update Now";
+                document.getElementById('mTitle').value = m.title;
+                document.getElementById('mCategory').value = m.category;
+                document.getElementById('mLang').value = m.language;
+                document.getElementById('mQuality').value = m.quality;
+                document.getElementById('mPoster').value = m.poster;
+                document.getElementById('mYear').value = m.year;
+                document.getElementById('mRating').value = m.rating;
+                document.getElementById('mPlot').value = m.plot;
+                document.getElementById('linksContainer').innerHTML = "";
+                if(m.links) m.links.forEach(l => createLinkRow(l.name, l.url));
+                window.scrollTo(0,0);
+            }, {onlyOnce: true});
+        };
+
+        window.del = (key) => { if(confirm("Delete this movie?")) remove(ref(db, 'movies/' + key)); };
+
+    </script>
+</body>
+</html>
