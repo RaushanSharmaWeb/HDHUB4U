@@ -10,15 +10,27 @@ SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY")
 SITE_URL = "https://new3.hdhub4u.fo/"
 
 def create_id(title):
+    # Unique ID generation
     clean_title = re.sub(r'[^a-zA-Z0-9\s]', '', title)
     return clean_title.strip().replace(' ', '_').lower()
+
+def get_existing_movies():
+    """ Database check karega taaki duplicate na bane """
+    print("📂 Checking existing movies...")
+    if not FIREBASE_URL: return []
+    try:
+        res = requests.get(f"{FIREBASE_URL}/movies.json?shallow=true")
+        if res.status_code == 200 and res.json():
+            return list(res.json().keys())
+        return []
+    except Exception:
+        return []
 
 def get_full_details(details_url):
     print(f"   └── 🕵️ Visiting: {details_url}...")
     
     payload = { 'api_key': SCRAPER_API_KEY, 'url': details_url, 'keep_headers': 'true' }
     
-    # Default khali data
     details = { 
         "rating": "N/A", "plot": "No synopsis.", "links": [],
         "language": "Hindi", "quality": "HD", "category": "Bollywood", "size": "N/A"
@@ -30,42 +42,19 @@ def get_full_details(details_url):
             
         soup = BeautifulSoup(res.text, 'html.parser')
         
-        # --- 1. TARGETING EXACT CLASS NAME (Jaisa screenshot me hai) ---
-        # Hum Python ko bolenge: Aisa div dhundo jiski class EXACT ye ho:
+        # --- 1. METADATA (Language, Quality from 'NFQFxe CQKTwc mod') ---
         target_box = soup.find('div', {'class': 'NFQFxe CQKTwc mod'})
-        
         if target_box:
-            print("      (🎯 Mil gaya! 'NFQFxe CQKTwc mod' se data nikal raha hu...)")
-            text_content = target_box.get_text(separator=' | ')
-            
-            # Text ko todkar scan karenge
+            text_content = target_box.get_text(separator='|')
             parts = text_content.split('|')
             for part in parts:
                 part = part.strip()
-                if "Language" in part:
-                    details["language"] = part.replace("Language", "").replace(":", "").strip()
-                elif "Quality" in part or "Format" in part:
-                    details["quality"] = part.replace("Quality", "").replace("Format", "").replace(":", "").strip()
-                elif "Size" in part:
-                    details["size"] = part.replace("Size", "").replace(":", "").strip()
-                elif "Genres" in part or "Category" in part:
-                    details["category"] = part.replace("Genres", "").replace("Category", "").replace(":", "").strip()
-        
-        else:
-            # Fallback: Agar wo div nahi mila (kabhi kabhi Google structure alag hota hai)
-            print("      (⚠️ Target div nahi mila, pure page me dhund raha hu...)")
-            full_text = soup.get_text()
-            
-            # Simple Text Search
-            lang = re.search(r'Language[:\s]+(.*?)\n', full_text)
-            if lang: details["language"] = lang.group(1).strip()
-            
-            qual = re.search(r'Quality[:\s]+(.*?)\n', full_text)
-            if qual: details["quality"] = qual.group(1).strip()
+                if "Language" in part: details["language"] = part.replace("Language", "").replace(":", "").strip()
+                elif "Quality" in part: details["quality"] = part.replace("Quality", "").replace(":", "").strip()
+                elif "Size" in part: details["size"] = part.replace("Size", "").replace(":", "").strip()
+                elif "Genres" in part: details["category"] = part.replace("Genres", "").replace(":", "").strip()
 
-        # --- 2. RATING & PLOT ---
-        # Screenshot 2 me dikh raha hai ki ye data Google reviews jaisa lag raha hai.
-        # Fir bhi hum koshish karenge.
+        # Rating & Plot
         rating_match = re.search(r'IMDb Rating[:\s]+(\d\.\d)', soup.get_text())
         if rating_match: details["rating"] = rating_match.group(1)
 
@@ -76,19 +65,28 @@ def get_full_details(details_url):
                 details["plot"] = text
                 break
 
-        # --- 3. LINKS (Screenshot 1 ke hisab se) ---
-        # Screenshot 1 me link <figure> ke andar <a> tag me hai.
-        # Lekin ye function DETAILS page ke liye hai.
-        # Details page par links <a> tags me hote hain (480p, 720p...)
-        all_links = soup.find_all('a')
-        for a in all_links:
-            txt = a.get_text().strip()
-            href = a.get('href')
-            if href and ("720p" in txt or "1080p" in txt or "480p" in txt):
-                if "trailer" not in txt.lower():
-                    details["links"].append({ "name": txt, "url": href })
+        # --- 🔥 2. LINKS (ONLY FROM 'page-body') 🔥 ---
+        # Sabse pehle 'page-body' wala dabba dhundo
+        main_body = soup.find('div', class_='page-body')
         
-        details["links"] = details["links"][:6]
+        if main_body:
+            print("      (🎯 'page-body' found! Extracting links...)")
+            # Ab link sirf is dabbe ke andar dhundenge
+            all_links = main_body.find_all('a')
+            
+            for a in all_links:
+                txt = a.get_text().strip()
+                href = a.get('href')
+                
+                # Filter: Link me 480p/720p/1080p hona chahiye
+                if href and ("720p" in txt or "1080p" in txt or "480p" in txt):
+                    if "trailer" not in txt.lower():
+                        details["links"].append({ "name": txt, "url": href })
+        else:
+            print("      (⚠️ 'page-body' class nahi mili!)")
+        
+        # Top 10 links hi rakho
+        details["links"] = details["links"][:10]
         return details
 
     except Exception as e:
@@ -101,6 +99,9 @@ def start_scraping():
         print("❌ Error: SCRAPER_API_KEY missing!")
         return
 
+    existing_ids = get_existing_movies()
+    print(f"ℹ️ Database me pehle se {len(existing_ids)} movies hain.")
+
     payload = { 'api_key': SCRAPER_API_KEY, 'url': SITE_URL, 'keep_headers': 'true' }
 
     try:
@@ -111,15 +112,15 @@ def start_scraping():
 
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Screenshot 1 Logic: <li class="thumb"> dhundo
+        # Screenshot 1 logic: <li class="thumb">
         all_movies = soup.find_all('li', class_='thumb')
+        if not all_movies: all_movies = soup.find_all('li', class_='post-item')
+
+        print(f"\n--- 🎬 Found {len(all_movies)} Movies on Homepage ---")
         
-        print(f"\n--- 🎬 Found Total {len(all_movies)} Movies ---")
-        
-        count = 0
+        new_count = 0
         for movie in all_movies:
             try:
-                # Screenshot 1: <figure> ke andar <img> aur <a> hai
                 figure = movie.find('figure')
                 if figure:
                     img_tag = figure.find('img')
@@ -135,9 +136,12 @@ def start_scraping():
                         title_clean = full_title.split('|')[0].strip()
                         movie_id = create_id(title_clean)
 
-                        print(f"\n[{count+1}] Checking: {title_clean}")
+                        if movie_id in existing_ids:
+                            print(f"⏩ Skipping: {title_clean} (Exists)")
+                            continue
 
-                        # Andar jao
+                        print(f"\n[{new_count+1}] NEW: {title_clean}")
+
                         full_data = get_full_details(details_page)
 
                         if FIREBASE_URL:
@@ -157,11 +161,11 @@ def start_scraping():
                             
                             final_url = f"{FIREBASE_URL}/movies/{movie_id}.json"
                             requests.put(final_url, json=movie_data)
-                            print(f"   ✅ Saved! Qual: {full_data['quality']}")
+                            print(f"   ✅ Saved! Links: {len(full_data['links'])}")
                         
-                        count += 1
-                        if count >= 3: 
-                            print("\n🛑 Limit reached.")
+                        new_count += 1
+                        if new_count >= 3: 
+                            print("\n🛑 Limit reached (3 New Movies).")
                             break
             except Exception as e:
                 continue
