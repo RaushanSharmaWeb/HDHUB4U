@@ -10,6 +10,7 @@ SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY")
 SITE_URL = "https://new3.hdhub4u.fo/"
 
 def create_id(title):
+    # Unique ID generation logic
     clean_title = re.sub(r'[^a-zA-Z0-9\s]', '', title)
     return clean_title.strip().replace(' ', '_').lower()
 
@@ -40,7 +41,7 @@ def get_full_details(details_url):
             
         soup = BeautifulSoup(res.text, 'html.parser')
         
-        # --- 1. METADATA ---
+        # --- 1. INFO BOX (Language, Quality, Size) ---
         target_box = soup.find('div', {'class': 'NFQFxe CQKTwc mod'})
         if target_box:
             text_content = target_box.get_text(separator='|')
@@ -63,42 +64,49 @@ def get_full_details(details_url):
                 details["plot"] = text
                 break
 
-        # --- 🔥 2. LINKS (SMART FILTER) 🔥 ---
-        main_body = soup.find('div', class_='page-body')
+        # --- 🔥 2. LINKS (Searching inside all 'row' classes) 🔥 ---
+        print("      (🎯 Scanning 'row' divs for links...)")
         
-        if main_body:
-            print("      (🎯 'page-body' found! Filtering junk links...)")
-            all_links = main_body.find_all('a')
-            
-            for a in all_links:
+        # Page par jitni bhi 'row' hain, sabko uthao
+        all_rows = soup.find_all('div', class_='row')
+        
+        # Agar 'row' na mile to body me dhundo
+        if not all_rows:
+            all_rows = [soup] 
+
+        found_links = []
+        
+        for container in all_rows:
+            links = container.find_all('a')
+            for a in links:
                 txt = a.get_text().strip()
                 href = a.get('href')
                 
-                # Check 1: Text bahut lamba nahi hona chahiye (Movie titles lambe hote hain)
-                if len(txt) > 50:
-                    continue 
+                # --- STRICT FILTERS (Kachra hatane ke liye) ---
+                
+                # 1. Link ka text chhota hona chahiye (Titles lambe hote hain)
+                if len(txt) > 50: continue 
 
-                # Check 2: Text me '|' nahi hona chahiye (Titles me aksar pipe '|' hota hai)
-                if "|" in txt:
-                    continue
+                # 2. Movie Titles me '|' hota hai, Download button me nahi
+                if "|" in txt: continue
+                
+                # 3. Year '(2026)' button me nahi hota
+                if "(" in txt and ")" in txt: continue
 
-                # Check 3: Asli keywords hone chahiye
-                if href and ("720p" in txt or "1080p" in txt or "480p" in txt or "Download" in txt):
+                # 4. Asli keywords check karo
+                if href and ("720p" in txt or "1080p" in txt or "480p" in txt or "Download" in txt or "G-Direct" in txt):
                     if "trailer" not in txt.lower():
-                        details["links"].append({ "name": txt, "url": href })
-        else:
-            print("      (⚠️ 'page-body' nahi mila)")
-        
-        # Duplicate Hatana (Set use karke)
-        # Kabhi kabhi same link 2 baar aa jata hai
+                        found_links.append({ "name": txt, "url": href })
+
+        # Duplicate Links Hatana
         unique_links = []
         seen_urls = set()
-        for link in details["links"]:
+        for link in found_links:
             if link["url"] not in seen_urls:
                 unique_links.append(link)
                 seen_urls.add(link["url"])
         
-        details["links"] = unique_links[:10] # Top 10 links
+        details["links"] = unique_links[:12] # Top 12 links
         return details
 
     except Exception as e:
@@ -124,6 +132,7 @@ def start_scraping():
 
         soup = BeautifulSoup(response.text, 'html.parser')
         
+        # Homepage Logic
         all_movies = soup.find_all('li', class_='thumb')
         if not all_movies: all_movies = soup.find_all('li', class_='post-item')
 
