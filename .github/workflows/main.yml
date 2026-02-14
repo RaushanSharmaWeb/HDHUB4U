@@ -2,27 +2,32 @@ name: Movie Scraper Bot
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # हर 6 घंटे में चलेगा
-  workflow_dispatch:      # जब मर्जी हो बटन दबाकर चला लो
+    - cron: '0 */6 * * *' # हर 6 घंटे में चलेगा (Automatic)
+  workflow_dispatch:      # बटन दबाकर चलाने के लिए (Manual)
 
 jobs:
   scrape_and_upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code (Code le raha hu)
+      # 1. Code Download karega
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Python Setup (Python daal raha hu)
+      # 2. Python Install karega
+      - name: Python Setup
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Install Libraries (Tools daal raha hu)
+      # 3. Zaroori Libraries Install karega
+      - name: Install Libraries
         run: |
-          pip install cloudscraper beautifulsoup4 firebase-admin requests
+          pip install requests beautifulsoup4
 
-      - name: Run Scraper (Bot chala raha hu)
+      # 4. Scraper Script Chalayega (Secrets ke sath)
+      - name: Run Scraper
         env:
           FIREBASE_URL: ${{ secrets.FIREBASE_URL }}
+          SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
         run: python scraper.py
