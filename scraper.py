@@ -10,12 +10,10 @@ SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY")
 SITE_URL = "https://new3.hdhub4u.fo/"
 
 def create_id(title):
-    # Unique ID generation
     clean_title = re.sub(r'[^a-zA-Z0-9\s]', '', title)
     return clean_title.strip().replace(' ', '_').lower()
 
 def get_existing_movies():
-    """ Database check karega taaki duplicate na bane """
     print("📂 Checking existing movies...")
     if not FIREBASE_URL: return []
     try:
@@ -42,7 +40,7 @@ def get_full_details(details_url):
             
         soup = BeautifulSoup(res.text, 'html.parser')
         
-        # --- 1. METADATA (Language, Quality from 'NFQFxe CQKTwc mod') ---
+        # --- 1. METADATA ---
         target_box = soup.find('div', {'class': 'NFQFxe CQKTwc mod'})
         if target_box:
             text_content = target_box.get_text(separator='|')
@@ -65,28 +63,42 @@ def get_full_details(details_url):
                 details["plot"] = text
                 break
 
-        # --- 🔥 2. LINKS (ONLY FROM 'page-body') 🔥 ---
-        # Sabse pehle 'page-body' wala dabba dhundo
+        # --- 🔥 2. LINKS (SMART FILTER) 🔥 ---
         main_body = soup.find('div', class_='page-body')
         
         if main_body:
-            print("      (🎯 'page-body' found! Extracting links...)")
-            # Ab link sirf is dabbe ke andar dhundenge
+            print("      (🎯 'page-body' found! Filtering junk links...)")
             all_links = main_body.find_all('a')
             
             for a in all_links:
                 txt = a.get_text().strip()
                 href = a.get('href')
                 
-                # Filter: Link me 480p/720p/1080p hona chahiye
-                if href and ("720p" in txt or "1080p" in txt or "480p" in txt):
+                # Check 1: Text bahut lamba nahi hona chahiye (Movie titles lambe hote hain)
+                if len(txt) > 50:
+                    continue 
+
+                # Check 2: Text me '|' nahi hona chahiye (Titles me aksar pipe '|' hota hai)
+                if "|" in txt:
+                    continue
+
+                # Check 3: Asli keywords hone chahiye
+                if href and ("720p" in txt or "1080p" in txt or "480p" in txt or "Download" in txt):
                     if "trailer" not in txt.lower():
                         details["links"].append({ "name": txt, "url": href })
         else:
-            print("      (⚠️ 'page-body' class nahi mili!)")
+            print("      (⚠️ 'page-body' nahi mila)")
         
-        # Top 10 links hi rakho
-        details["links"] = details["links"][:10]
+        # Duplicate Hatana (Set use karke)
+        # Kabhi kabhi same link 2 baar aa jata hai
+        unique_links = []
+        seen_urls = set()
+        for link in details["links"]:
+            if link["url"] not in seen_urls:
+                unique_links.append(link)
+                seen_urls.add(link["url"])
+        
+        details["links"] = unique_links[:10] # Top 10 links
         return details
 
     except Exception as e:
@@ -100,7 +112,7 @@ def start_scraping():
         return
 
     existing_ids = get_existing_movies()
-    print(f"ℹ️ Database me pehle se {len(existing_ids)} movies hain.")
+    print(f"ℹ️ Database me {len(existing_ids)} movies hain.")
 
     payload = { 'api_key': SCRAPER_API_KEY, 'url': SITE_URL, 'keep_headers': 'true' }
 
@@ -112,7 +124,6 @@ def start_scraping():
 
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # Screenshot 1 logic: <li class="thumb">
         all_movies = soup.find_all('li', class_='thumb')
         if not all_movies: all_movies = soup.find_all('li', class_='post-item')
 
@@ -161,11 +172,11 @@ def start_scraping():
                             
                             final_url = f"{FIREBASE_URL}/movies/{movie_id}.json"
                             requests.put(final_url, json=movie_data)
-                            print(f"   ✅ Saved! Links: {len(full_data['links'])}")
+                            print(f"   ✅ Saved! Valid Links: {len(full_data['links'])}")
                         
                         new_count += 1
                         if new_count >= 3: 
-                            print("\n🛑 Limit reached (3 New Movies).")
+                            print("\n🛑 Limit reached.")
                             break
             except Exception as e:
                 continue
