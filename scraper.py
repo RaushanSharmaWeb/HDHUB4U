@@ -5,53 +5,45 @@ import json
 
 # --- CONFIGURATION ---
 FIREBASE_URL = os.environ.get("FIREBASE_URL")
-# URL check kar lena, agar change hua ho to update karein
-SITE_URL = "https://new3.hdhub4u.fo/" 
+# Yahan hum wo Key uthayenge jo aapne GitHub Secrets me dali hai
+SCRAPER_API_KEY = os.environ.get("SCRAPER_API_KEY") 
+SITE_URL = "https://new3.hdhub4u.fo/"
 
-def simple_scrape():
-    print("🚀 Connecting to HDHub4u (Simple Mode)...")
+def start_scraping():
+    print("🚀 Connecting via ScraperAPI (Bypassing Cloudflare)...")
 
-    # --- 1. HEADERS (Bhes badalna) ---
-    # Hum website ko bolenge ki hum ek 'Chrome Browser' hain, Python script nahi.
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Referer": "https://google.com"
+    # Agar Secret set nahi hai, to error dikhao
+    if not SCRAPER_API_KEY:
+        print("❌ Error: SCRAPER_API_KEY nahi mili! GitHub Secrets check karo.")
+        return
+
+    # --- 1. PROXY REQUEST (Aapka wala code) ---
+    payload = { 
+        'api_key': SCRAPER_API_KEY, 
+        'url': SITE_URL,
+        'keep_headers': 'true' # Original headers bhejne ke liye
     }
 
     try:
-        # --- 2. REQUEST ---
-        # Note: verify=False SSL errors ko ignore karne ke liye hai (kabhi kabhi zarurat padti hai)
-        response = requests.get(SITE_URL, headers=headers, timeout=15)
-
-        print(f"📡 Status Code: {response.status_code}")
-
-        # Agar 403 (Forbidden) ya 503 (Service Unavailable) aaye, to matlab Cloudflare ne roka hai
-        if response.status_code in [403, 503]:
-            print("❌ Result: Cloudflare Active Hai. Simple request block ho gayi.")
-            return
-
+        # Request ScraperAPI ko bhej rahe hain
+        response = requests.get('http://api.scraperapi.com', params=payload)
+        
         if response.status_code != 200:
-            print(f"❌ Failed to connect. Reason: {response.reason}")
+            print(f"❌ Failed! Status: {response.status_code}")
+            print("Reason:", response.text)
             return
 
-        print("✅ SUCCESS! Website direct access ho gayi.")
+        print("✅ SUCCESS! Cloudflare Bypassed. HTML mil gaya.")
 
-        # --- 3. PARSING (Jo screenshot me dekha tha) ---
+        # --- 2. PARSING (Movie dhundho) ---
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        # 'thumb' class wali list dhundho
+        # 'thumb' class wali list dhundho (Screenshot logic)
         all_movies = soup.find_all('li', class_='thumb')
         
-        if not all_movies:
-            print("⚠️ Website khuli par 'thumb' class nahi mili. HTML print kar raha hu check karne ke liye:")
-            print(response.text[:500]) # Shuru ke 500 akshar dikhao
-            return
-
-        print(f"\n--- 🎬 Found {len(all_movies)} Movies ---")
-        
         count = 0
+        print(f"\n--- 🎬 Found {len(all_movies)} Movies ---")
+
         for movie in all_movies:
             try:
                 img_tag = movie.find('img')
@@ -70,7 +62,7 @@ def simple_scrape():
 
                     print(f"Found: {title}")
 
-                    # --- 4. FIREBASE UPLOAD ---
+                    # --- 3. FIREBASE UPLOAD ---
                     if FIREBASE_URL:
                         movie_data = {
                             "title": title,
@@ -86,15 +78,14 @@ def simple_scrape():
                         print("   └── ✅ Uploaded!")
                     
                     count += 1
-                    if count >= 5: 
+                    if count >= 5: # Sirf Top 5 movies
                         break
 
             except Exception as e:
-                print(f"⚠️ Error parsing item: {e}")
                 continue
 
     except Exception as e:
-        print(f"❌ Connection Error: {e}")
+        print(f"❌ Critical Error: {e}")
 
 if __name__ == "__main__":
-    simple_scrape()
+    start_scraping()
