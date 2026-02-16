@@ -24,6 +24,44 @@ def get_existing_movies():
     except Exception:
         return []
 
+def clean_plot_text(text):
+    """
+    Ye function kahani ko saaf karega (Garbage hatayega).
+    """
+    if not text: return None
+    
+    # 1. Shuruwat saaf karo (Storyline: ... -> ...)
+    text = re.sub(r'^(DESCRIPTION|SYNOPSIS|PLOT|STORYLINE|STORY)[:\s\-]+', '', text, flags=re.IGNORECASE).strip()
+    
+    # 2. STOP WORDS: Jahan ye words dikhein, wahi BAS kar do (Cut kar do)
+    stop_markers = [
+        "Watch Online", "Download", "9xmovies", "world4free", "Khatrimaza", 
+        "123Movies", "fmovies", "Gomovies", "300Mb", "Dual Audio", "Hindi Dubbed",
+        "AMAZON PRIME", "NETFLIX", "G-Drive", "Direct Links", "Bolly4u"
+    ]
+    
+    # Text ko lowercase me check karo markers ke liye
+    text_lower = text.lower()
+    
+    cut_index = len(text) # Default: Pura text rakho
+    
+    for marker in stop_markers:
+        marker_lower = marker.lower()
+        if marker_lower in text_lower:
+            # Sabse pehla jo garbage mile, wahi se kaat do
+            idx = text_lower.find(marker_lower)
+            if idx != -1 and idx < cut_index:
+                cut_index = idx
+    
+    # Text ko kaat do
+    final_text = text[:cut_index].strip()
+            
+    # Agar cut karne ke baad text bahut chhota bacha, to ignore karo
+    if len(final_text) < 10:
+        return None
+        
+    return final_text
+
 def get_full_details(details_url):
     print(f"   └── 🕵️ Visiting: {details_url}...")
     
@@ -56,30 +94,49 @@ def get_full_details(details_url):
         rating_match = re.search(r'IMDb Rating[:\s]+(\d\.\d)', soup.get_text())
         if rating_match: details["rating"] = rating_match.group(1)
 
-        # --- 3. FULL RAW DESCRIPTION (SEO Ke Saath) ---
+        # --- 3. SMART PLOT EXTRACTION (Header ke neeche wala) ---
         found_plot = None
         
-        # Method: 'DESCRIPTION' label dhundo aur uska PURA TEXT utha lo
-        label = soup.find(['strong', 'b', 'span'], string=re.compile(r'(DESCRIPTION|SYNOPSIS|PLOT)', re.IGNORECASE))
+        # Keywords jinke neeche kahani hoti hai
+        plot_keywords = ["Storyline", "Synopsis", "Description", "Plot", "Story"]
         
-        if label:
-            # Pura paragraph uthao (Jisme 9xmovies, watch online sab hai)
-            raw_text = label.parent.get_text().strip()
+        for keyword in plot_keywords:
+            # Keyword dhundo (Case insensitive)
+            # Hum 'strong', 'b', 'span', 'h3', 'h4' me dhundenge
+            header = soup.find(['strong', 'b', 'span', 'h3', 'h4', 'p'], string=re.compile(keyword, re.IGNORECASE))
             
-            # Sirf shuru ka "DESCRIPTION:" word hata do taki repeat na ho
-            # Baaki sab kuch (keywords) rehne do
-            clean_start = re.sub(r'^(DESCRIPTION|SYNOPSIS|PLOT)[:\s\-]+', '', raw_text, flags=re.IGNORECASE).strip()
-            
-            found_plot = clean_start
-        
-        # Fallback: Agar label na mile to sabse lamba paragraph utha lo
+            if header:
+                # HEADER MIL GAYA! (Jaise: "Storyline :")
+                # Ab hum iske aage ya neeche ka text dhundenge.
+                
+                # Option A: Kya text usi line me aage likha hai? (Parent check)
+                parent_text = header.parent.get_text().strip()
+                cleaned_parent = clean_plot_text(parent_text)
+                # Agar parent text me keyword hatane ke baad bhi 50 words bache hain, to wahi plot hai
+                if cleaned_parent and len(cleaned_parent) > 50:
+                    found_plot = cleaned_parent
+                    break
+                
+                # Option B: Agar us line me nahi hai, to NEXT Paragraph (<p>) uthao
+                # Ye tab kaam karega jab Storyline heading ho aur plot niche ho (Screenshot jaisa)
+                next_elem = header.find_next('p')
+                if next_elem:
+                    next_text = next_elem.get_text().strip()
+                    cleaned_next = clean_plot_text(next_text)
+                    if cleaned_next and len(cleaned_next) > 20:
+                        found_plot = cleaned_next
+                        break
+
+        # Fallback: Agar upar wala tareeka fail ho jaye, to Longest Paragraph uthao
         if not found_plot:
             paragraphs = soup.find_all('p')
             for p in paragraphs:
                 text = p.get_text().strip()
-                if len(text) > 50 and "Download" not in text and "Join" not in text:
-                    found_plot = text
-                    break
+                if len(text) > 60 and "Download" not in text and "Join" not in text:
+                    cleaned = clean_plot_text(text)
+                    if cleaned:
+                        found_plot = cleaned
+                        break
 
         if found_plot:
             details["plot"] = found_plot
