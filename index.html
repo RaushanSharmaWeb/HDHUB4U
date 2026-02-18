@@ -3,343 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDHub4u - Download Free Movies</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Home - HDHub4u Clone</title>
     <style>
-        /* --- 1. DARK THEME CSS --- */
-        :root {
-            --primary: #e50914; /* Netflix Red */
-            --dark: #141414;
-            --card-bg: #1f1f1f;
-            --text: #ffffff;
-            --gray: #aaa;
-        }
-
+        /* --- ORIGINAL SIMPLE CSS --- */
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--dark);
-            color: var(--text);
+            font-family: sans-serif;
+            background-color: #111; /* Dark Background */
+            color: #fff;
             margin: 0;
             padding: 0;
         }
 
-        /* --- HEADER & NAV --- */
+        /* Header */
         header {
-            background: #000;
+            background-color: #222;
             padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid #e50914; /* Red Line */
         }
 
         .logo {
-            color: var(--primary);
-            font-size: 28px;
-            font-weight: 900;
+            color: #e50914;
+            font-size: 24px;
+            font-weight: bold;
             text-decoration: none;
-            letter-spacing: 1px;
         }
 
-        .search-box {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin-top: 10px;
-        }
-        
-        @media(min-width: 768px) {
-            .search-box { margin-top: 0; width: 300px; }
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px;
-            border-radius: 25px;
-            border: 1px solid #333;
-            background: #333;
-            color: white;
-            outline: none;
-            padding-right: 40px;
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        /* --- CATEGORY FILTERS --- */
-        .categories {
-            display: flex;
-            gap: 10px;
-            padding: 15px 20px;
-            overflow-x: auto;
-            background: #181818;
-            border-bottom: 1px solid #333;
-        }
-
-        .cat-btn {
-            background: #333;
-            color: white;
+        /* Search Bar */
+        #searchBox {
+            padding: 8px;
+            width: 200px;
+            border-radius: 5px;
             border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.3s;
-            font-size: 14px;
         }
 
-        .cat-btn:hover, .cat-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* --- MOVIES GRID --- */
+        /* Main Container */
         .container {
             max-width: 1200px;
             margin: 20px auto;
             padding: 0 15px;
         }
 
-        .section-title {
-            border-left: 5px solid var(--primary);
-            padding-left: 10px;
-            margin-bottom: 20px;
-            font-size: 22px;
-        }
+        h2 { border-left: 5px solid #e50914; padding-left: 10px; margin-bottom: 20px; }
 
-        .movie-grid {
+        /* Movies Grid */
+        .movies-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Original Size */
             gap: 20px;
         }
 
-        /* --- MOVIE CARD --- */
+        /* Movie Card */
         .movie-card {
-            background: var(--card-bg);
-            border-radius: 8px;
+            background: #222;
+            border-radius: 5px;
             overflow: hidden;
             text-decoration: none;
             color: white;
-            transition: transform 0.3s;
-            position: relative;
+            transition: transform 0.2s;
             display: block;
         }
 
         .movie-card:hover {
-            transform: scale(1.05);
-            z-index: 10;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transform: scale(1.05); /* Zoom Effect */
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
         }
 
-        .poster {
+        .poster-container {
             width: 100%;
-            aspect-ratio: 2/3; /* Standard Poster Size */
+            height: 225px; /* Fixed Height */
+            overflow: hidden;
+            position: relative;
+        }
+
+        .poster-container img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
-        .quality-badge {
+        .quality-tag {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary);
+            top: 5px; right: 5px;
+            background: #e50914;
             color: white;
             font-size: 10px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
 
-        .card-info {
+        .movie-info {
             padding: 10px;
+            text-align: center;
         }
 
-        .title {
-            font-size: 14px;
-            font-weight: 600;
-            margin: 0;
+        .movie-title {
+            font-size: 13px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-
-        .meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--gray);
-            margin-top: 5px;
-        }
-
-        /* LOADING */
-        .loader {
-            text-align: center;
-            padding: 50px;
-            font-size: 18px;
-            color: var(--gray);
-        }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 50px;
-            border-top: 1px solid #333;
-            color: var(--gray);
-            font-size: 12px;
+            margin: 0;
+            color: #ddd;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="logo">HDHub4u</a>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search movies..." onkeyup="handleSearch()">
-            <i class="fas fa-search"></i>
-        </div>
+        <a href="#" class="logo">HDHub4u</a>
+        <input type="text" id="searchBox" placeholder="Search movies..." onkeyup="filterMovies()">
     </header>
 
-    <div class="categories">
-        <button class="cat-btn active" onclick="filterBy('All', this)">All</button>
-        <button class="cat-btn" onclick="filterBy('Bollywood', this)">Bollywood</button>
-        <button class="cat-btn" onclick="filterBy('Hollywood', this)">Hollywood</button>
-        <button class="cat-btn" onclick="filterBy('South', this)">South Hindi</button>
-        <button class="cat-btn" onclick="filterBy('Web Series', this)">Web Series</button>
-    </div>
-
     <div class="container">
-        <h2 class="section-title">Latest Updates</h2>
-        
-        <div id="moviesGrid" class="movie-grid">
-            <div class="loader">Loading Movies... 🚀</div>
+        <h2>Latest Movies</h2>
+        <div id="movies-grid" class="movies-grid">
+            <p style="text-align:center; color:#777;">Loading...</p>
         </div>
     </div>
-
-    <footer>
-        <p>© 2026 HDHub4u Clone. All rights reserved.</p>
-        <p>Disclaimer: This site does not store any files on its server.</p>
-    </footer>
 
     <script>
         // 🔥 Aapka Firebase URL
         const FIREBASE_URL = "https://education-921c2-default-rtdb.firebaseio.com";
         
-        let allMovies = []; // Saara data yahan store hoga
+        let allMovies = []; // Search ke liye data yahan save rahega
 
-        // 1. Fetch Movies from Firebase
         async function fetchMovies() {
+            const grid = document.getElementById('movies-grid');
+            
             try {
+                // 1. Data lao
                 const response = await fetch(`${FIREBASE_URL}/movies.json`);
                 const data = await response.json();
 
                 if (!data) {
-                    document.getElementById('moviesGrid').innerHTML = "<p>No movies found.</p>";
+                    grid.innerHTML = "<p>No movies found.</p>";
                     return;
                 }
 
-                // Data ko Array me convert karo
-                // Object { "id1": {...}, "id2": {...} } -> Array [ {...}, {...} ]
-                allMovies = Object.keys(data).map(key => ({
-                    id: key, // ID bhi save kar li
-                    ...data[key]
-                }));
+                // 2. Data ko Array banao taaki ID access kar sakein
+                allMovies = Object.keys(data).map(key => {
+                    return {
+                        id: key,       // Ye hai wo Unique ID (e.g., animal_2023)
+                        ...data[key]   // Baaki movie details
+                    };
+                });
 
-                // Sort: Nayi movie sabse upar (Reverse order)
-                // Agar aapke paas timestamp hai to usse sort karein, warna reverse() kaafi hai
+                // 3. Reverse (Latest First)
                 allMovies.reverse();
 
-                // Screen par dikhao
+                // 4. Render
                 renderMovies(allMovies);
 
             } catch (error) {
-                console.error("Error:", error);
-                document.getElementById('moviesGrid').innerHTML = "<p style='color:red'>Failed to load data.</p>";
+                console.error(error);
+                grid.innerHTML = "<p>Error loading movies.</p>";
             }
         }
 
-        // 2. Render Movies to HTML
         function renderMovies(movies) {
-            const grid = document.getElementById('moviesGrid');
-            grid.innerHTML = ""; // Purana saaf karo
+            const grid = document.getElementById('movies-grid');
+            grid.innerHTML = ""; // Purana data saaf karo
 
             if (movies.length === 0) {
-                grid.innerHTML = "<p style='color:gray; grid-column: 1/-1; text-align:center;'>No movies match your filter.</p>";
+                grid.innerHTML = "<p>No matches found.</p>";
                 return;
             }
 
             movies.forEach(movie => {
-                // Agar poster nahi hai to placeholder lagao
-                const poster = movie.poster || "https://via.placeholder.com/200x300?text=No+Poster";
+                // Poster Safety
+                const poster = movie.poster || "https://via.placeholder.com/150x225?text=No+Img";
+                const title = movie.title || "Untitled";
                 const quality = movie.quality || "HD";
-                const lang = movie.language || "Hindi";
-                const rating = movie.rating || "N/A";
 
-                // HTML Card Template
-                // 🔗 LINK LOGIC: details.html?id=...
-                const card = `
+                // 🔥 LINK LOGIC: details.html?id=...
+                const cardHtml = `
                     <a href="details.html?id=${movie.id}" class="movie-card">
-                        <div class="poster-container" style="position:relative;">
-                            <span class="quality-badge">${quality}</span>
-                            <img src="${poster}" alt="${movie.title}" class="poster" loading="lazy">
+                        <div class="poster-container">
+                            <span class="quality-tag">${quality}</span>
+                            <img src="${poster}" alt="${title}" loading="lazy">
                         </div>
-                        <div class="card-info">
-                            <h3 class="title">${movie.title}</h3>
-                            <div class="meta">
-                                <span>${lang}</span>
-                                <span>⭐ ${rating}</span>
-                            </div>
+                        <div class="movie-info">
+                            <h3 class="movie-title">${title}</h3>
                         </div>
                     </a>
                 `;
-                grid.innerHTML += card;
+                grid.innerHTML += cardHtml;
             });
         }
 
-        // 3. Search Function
-        function handleSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            
+        // Search Function
+        function filterMovies() {
+            const query = document.getElementById('searchBox').value.toLowerCase();
             const filtered = allMovies.filter(movie => 
                 movie.title.toLowerCase().includes(query)
             );
-            
             renderMovies(filtered);
         }
 
-        // 4. Category Filter Function
-        function filterBy(category, btnElement) {
-            // Buttons ki active class badlo
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-
-            if (category === 'All') {
-                renderMovies(allMovies);
-                return;
-            }
-
-            // Filter logic (Agar category match kare)
-            // Note: Scraper abhi "Bollywood" default bhej raha hai.
-            // Future me jab aap category scrape karenge tab ye kaam karega.
-            const filtered = allMovies.filter(movie => 
-                movie.category && movie.category.includes(category)
-            );
-            
-            renderMovies(filtered);
-        }
-
-        // Page load hone par start karo
+        // Run on load
         fetchMovies();
-
     </script>
+
 </body>
 </html>
