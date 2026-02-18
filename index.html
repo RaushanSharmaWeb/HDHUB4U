@@ -3,236 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDHub4u Clone - Home</title>
+    <title>HDHub4u - Download Free Movies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* --- 1. BASIC STYLING (Dark Mode) --- */
+        /* --- 1. DARK THEME CSS --- */
+        :root {
+            --primary: #e50914; /* Netflix Red */
+            --dark: #141414;
+            --card-bg: #1f1f1f;
+            --text: #ffffff;
+            --gray: #aaa;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212; /* Dark Background */
-            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
             margin: 0;
             padding: 0;
         }
 
-        /* --- 2. HEADER --- */
+        /* --- HEADER & NAV --- */
         header {
-            background-color: #1f1f1f;
+            background: #000;
             padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
+
         .logo {
-            color: #e50914; /* Netflix Red */
-            font-size: 24px;
-            font-weight: bold;
-            text-transform: uppercase;
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 900;
             text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 10px;
         }
         
-        /* Search Bar */
-        .search-container input {
-            padding: 8px 15px;
-            border-radius: 20px;
+        @media(min-width: 768px) {
+            .search-box { margin-top: 0; width: 300px; }
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 25px;
             border: 1px solid #333;
             background: #333;
             color: white;
             outline: none;
-            width: 200px;
-            transition: width 0.3s;
-        }
-        .search-container input:focus {
-            width: 300px;
-            border-color: #e50914;
+            padding-right: 40px;
         }
 
-        /* --- 3. MOVIES GRID --- */
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        /* --- CATEGORY FILTERS --- */
+        .categories {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            overflow-x: auto;
+            background: #181818;
+            border-bottom: 1px solid #333;
+        }
+
+        .cat-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+
+        .cat-btn:hover, .cat-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* --- MOVIES GRID --- */
         .container {
             max-width: 1200px;
             margin: 20px auto;
             padding: 0 15px;
         }
 
-        .movies-grid {
-            display: grid;
-            /* Responsive Grid: Jitni jagah ho utne card fit karo */
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 25px;
+        .section-title {
+            border-left: 5px solid var(--primary);
+            padding-left: 10px;
+            margin-bottom: 20px;
+            font-size: 22px;
         }
 
-        /* --- 4. MOVIE CARD --- */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        /* --- MOVIE CARD --- */
         .movie-card {
-            background: #1e1e1e;
+            background: var(--card-bg);
             border-radius: 8px;
             overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            position: relative;
             text-decoration: none;
             color: white;
-            display: block; /* Link ko block banao */
-        }
-        
-        .movie-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
-        }
-
-        .poster-container {
+            transition: transform 0.3s;
             position: relative;
-            height: 240px;
-            overflow: hidden;
-        }
-        
-        .movie-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* Image ko stretch hone se bachaye */
+            display: block;
         }
 
-        .badge {
+        .movie-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .poster {
+            width: 100%;
+            aspect-ratio: 2/3; /* Standard Poster Size */
+            object-fit: cover;
+        }
+
+        .quality-badge {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: #e50914;
+            background: var(--primary);
             color: white;
             font-size: 10px;
-            padding: 3px 6px;
-            border-radius: 4px;
             font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
 
-        .movie-info {
-            padding: 12px;
+        .card-info {
+            padding: 10px;
         }
 
-        .movie-title {
+        .title {
             font-size: 14px;
-            margin: 0 0 8px 0;
+            font-weight: 600;
+            margin: 0;
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Lambe title ko '...' kare */
-            color: #ddd;
+            text-overflow: ellipsis;
         }
 
-        .meta-info {
+        .meta {
             display: flex;
             justify-content: space-between;
             font-size: 11px;
-            color: #888;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* LOADING */
+        .loader {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: var(--gray);
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+            border-top: 1px solid #333;
+            color: var(--gray);
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="#" class="logo">HDHub4u</a>
-        <div class="search-container">
-            <input type="text" id="searchBox" placeholder="Search movies..." onkeyup="filterMovies()">
+        <a href="index.html" class="logo">HDHub4u</a>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search movies..." onkeyup="handleSearch()">
+            <i class="fas fa-search"></i>
         </div>
     </header>
 
+    <div class="categories">
+        <button class="cat-btn active" onclick="filterBy('All', this)">All</button>
+        <button class="cat-btn" onclick="filterBy('Bollywood', this)">Bollywood</button>
+        <button class="cat-btn" onclick="filterBy('Hollywood', this)">Hollywood</button>
+        <button class="cat-btn" onclick="filterBy('South', this)">South Hindi</button>
+        <button class="cat-btn" onclick="filterBy('Web Series', this)">Web Series</button>
+    </div>
+
     <div class="container">
-        <h2 style="border-left: 5px solid #e50914; padding-left: 10px;">Latest Uploads</h2>
+        <h2 class="section-title">Latest Updates</h2>
         
-        <div id="movies-grid" class="movies-grid">
-            <h3 style="text-align:center; color:#888;">Loading Movies... 🚀</h3>
+        <div id="moviesGrid" class="movie-grid">
+            <div class="loader">Loading Movies... 🚀</div>
         </div>
     </div>
 
+    <footer>
+        <p>© 2026 HDHub4u Clone. All rights reserved.</p>
+        <p>Disclaimer: This site does not store any files on its server.</p>
+    </footer>
+
     <script>
-        // Aapka Firebase URL
+        // 🔥 Aapka Firebase URL
         const FIREBASE_URL = "https://education-921c2-default-rtdb.firebaseio.com";
         
-        let allMoviesData = []; // Search ke liye data yahan save rahega
+        let allMovies = []; // Saara data yahan store hoga
 
+        // 1. Fetch Movies from Firebase
         async function fetchMovies() {
             try {
-                // 1. Firebase se data mangvao
                 const response = await fetch(`${FIREBASE_URL}/movies.json`);
                 const data = await response.json();
 
-                const grid = document.getElementById('movies-grid');
-                grid.innerHTML = ""; // "Loading..." hatao
-
                 if (!data) {
-                    grid.innerHTML = "<p>No movies found. Please run the Python Scraper.</p>";
+                    document.getElementById('moviesGrid').innerHTML = "<p>No movies found.</p>";
                     return;
                 }
 
-                // 2. Data ko Object se Array me badlo
-                // Firebase return karta hai: { "animal_2023": {...}, "tiger_3": {...} }
-                // Hum ise array banayenge taki loop chala sakein
-                allMoviesData = Object.keys(data).map(key => {
-                    return {
-                        id: key,       // Ye hai wo ID jo hume chahiye (animal_2023)
-                        ...data[key]   // Baaki data (title, poster, etc.)
-                    };
-                });
+                // Data ko Array me convert karo
+                // Object { "id1": {...}, "id2": {...} } -> Array [ {...}, {...} ]
+                allMovies = Object.keys(data).map(key => ({
+                    id: key, // ID bhi save kar li
+                    ...data[key]
+                }));
 
-                // 3. New movies pehle dikhao (Reverse order)
-                // (Ya aap updatedAt timestamp se sort kar sakte hain)
-                allMoviesData.reverse(); 
+                // Sort: Nayi movie sabse upar (Reverse order)
+                // Agar aapke paas timestamp hai to usse sort karein, warna reverse() kaafi hai
+                allMovies.reverse();
 
-                // 4. Screen par dikhao
-                renderMovies(allMoviesData);
+                // Screen par dikhao
+                renderMovies(allMovies);
 
             } catch (error) {
                 console.error("Error:", error);
-                document.getElementById('movies-grid').innerHTML = "<p style='color:red;'>Failed to load movies.</p>";
+                document.getElementById('moviesGrid').innerHTML = "<p style='color:red'>Failed to load data.</p>";
             }
         }
 
+        // 2. Render Movies to HTML
         function renderMovies(movies) {
-            const grid = document.getElementById('movies-grid');
+            const grid = document.getElementById('moviesGrid');
             grid.innerHTML = ""; // Purana saaf karo
 
-            if(movies.length === 0) {
-                grid.innerHTML = "<p>No movies match your search.</p>";
+            if (movies.length === 0) {
+                grid.innerHTML = "<p style='color:gray; grid-column: 1/-1; text-align:center;'>No movies match your filter.</p>";
                 return;
             }
 
             movies.forEach(movie => {
-                // Default Poster agar image load na ho
-                const poster = movie.poster || "https://via.placeholder.com/160x240?text=No+Poster";
-                
-                // 🔥 MAIN LOGIC: Link me ID pass karna
-                // details.html?id=movie_id
-                const movieHtml = `
+                // Agar poster nahi hai to placeholder lagao
+                const poster = movie.poster || "https://via.placeholder.com/200x300?text=No+Poster";
+                const quality = movie.quality || "HD";
+                const lang = movie.language || "Hindi";
+                const rating = movie.rating || "N/A";
+
+                // HTML Card Template
+                // 🔗 LINK LOGIC: details.html?id=...
+                const card = `
                     <a href="details.html?id=${movie.id}" class="movie-card">
-                        <div class="poster-container">
-                            <span class="badge">${movie.quality || 'HD'}</span>
-                            <img src="${poster}" alt="${movie.title}" loading="lazy">
+                        <div class="poster-container" style="position:relative;">
+                            <span class="quality-badge">${quality}</span>
+                            <img src="${poster}" alt="${movie.title}" class="poster" loading="lazy">
                         </div>
-                        <div class="movie-info">
-                            <h3 class="movie-title">${movie.title}</h3>
-                            <div class="meta-info">
-                                <span>${movie.language || 'Hindi'}</span>
-                                <span>⭐ ${movie.rating || 'N/A'}</span>
+                        <div class="card-info">
+                            <h3 class="title">${movie.title}</h3>
+                            <div class="meta">
+                                <span>${lang}</span>
+                                <span>⭐ ${rating}</span>
                             </div>
                         </div>
                     </a>
                 `;
-                grid.innerHTML += movieHtml;
+                grid.innerHTML += card;
             });
         }
 
-        // Search Function
-        function filterMovies() {
-            const query = document.getElementById('searchBox').value.toLowerCase();
-            const filtered = allMoviesData.filter(movie => 
+        // 3. Search Function
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = allMovies.filter(movie => 
                 movie.title.toLowerCase().includes(query)
             );
+            
             renderMovies(filtered);
         }
 
-        // Page load hote hi movies lao
-        fetchMovies();
-    </script>
+        // 4. Category Filter Function
+        function filterBy(category, btnElement) {
+            // Buttons ki active class badlo
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
 
+            if (category === 'All') {
+                renderMovies(allMovies);
+                return;
+            }
+
+            // Filter logic (Agar category match kare)
+            // Note: Scraper abhi "Bollywood" default bhej raha hai.
+            // Future me jab aap category scrape karenge tab ye kaam karega.
+            const filtered = allMovies.filter(movie => 
+                movie.category && movie.category.includes(category)
+            );
+            
+            renderMovies(filtered);
+        }
+
+        // Page load hone par start karo
+        fetchMovies();
+
+    </script>
 </body>
 </html>
