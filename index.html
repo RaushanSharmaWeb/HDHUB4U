@@ -3,336 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDHub Clone - Home</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script src="https://pl28706994.effectivegatecpm.com/6b/a9/31/6ba931ae49c8a35680d25c6e82f333bf.js"></script>
-
-    <script src="https://pl28707051.effectivegatecpm.com/57/24/4d/57244d2581d0ac451836fd307e397243.js"></script>
-
+    <title>HDHub4u Clone - Home</title>
     <style>
-        /* --- 1. THEME SETTINGS --- */
-        :root {
-            --bg: #0f171e;
-            --card-bg: #1b2530;
-            --primary: #f5c518; /* Yellow */
-            --accent: #e50914;  /* Red */
-            --text-main: #ffffff;
-            --text-sub: #b3b3b3;
-        }
-
+        /* --- 1. BASIC STYLING (Dark Mode) --- */
         body {
-            background: var(--bg);
-            color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212; /* Dark Background */
+            color: #ffffff;
             margin: 0;
-            padding-bottom: 60px;
+            padding: 0;
         }
 
-        a { text-decoration: none; color: inherit; }
-
-        /* --- 2. HEADER & SIDEBAR --- */
+        /* --- 2. HEADER --- */
         header {
-            background: #000;
+            background-color: #1f1f1f;
             padding: 15px 20px;
-            border-bottom: 2px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
-
-        .menu-icon { font-size: 24px; cursor: pointer; color: white; }
+        .logo {
+            color: #e50914; /* Netflix Red */
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
         
-        .logo { font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .logo span { color: var(--primary); }
-
-        /* Sidebar Styling */
-        .sidebar {
-            height: 100%; width: 0; position: fixed; z-index: 200; top: 0; left: 0;
-            background-color: #111; overflow-x: hidden; transition: 0.3s; padding-top: 60px;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.7);
-        }
-        .sidebar a { padding: 12px 25px; text-decoration: none; font-size: 16px; color: #ddd; display: block; transition: 0.3s; border-bottom: 1px solid #222; }
-        .sidebar a:hover { color: var(--primary); background: #222; padding-left: 30px; }
-        .closebtn { position: absolute; top: 10px; right: 20px; font-size: 30px; border: none; background: none; color: white; cursor: pointer; }
-
-        /* --- 3. SEARCH & CATEGORIES --- */
-        .search-wrapper { padding: 15px; background: #161f28; }
-        .search-box {
-            width: 100%;
-            background: #232f3e;
-            border: 1px solid #444;
-            padding: 12px 15px;
-            border-radius: 25px;
+        /* Search Bar */
+        .search-container input {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: #333;
             color: white;
             outline: none;
-            box-sizing: border-box;
-            font-size: 15px;
+            width: 200px;
+            transition: width 0.3s;
         }
-        .search-box:focus { border-color: var(--primary); }
-
-        .nav-scroller {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding: 10px 15px;
-            background: #0f171e;
-            scrollbar-width: none;
-        }
-        .nav-scroller::-webkit-scrollbar { display: none; }
-
-        .cat-btn {
-            background: #2b3947;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 13px;
-            white-space: nowrap;
-            cursor: pointer;
-            border: 1px solid #333;
-            color: #ccc;
-            transition: 0.2s;
-        }
-        .cat-btn.active, .cat-btn:hover {
-            background: var(--primary);
-            color: black;
-            font-weight: bold;
-            border-color: var(--primary);
+        .search-container input:focus {
+            width: 300px;
+            border-color: #e50914;
         }
 
-        /* --- 4. MOVIE GRID --- */
-        .grid-container {
+        /* --- 3. MOVIES GRID --- */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .movies-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            /* Responsive Grid: Jitni jagah ho utne card fit karo */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 25px;
         }
 
-        .card {
-            background: var(--card-bg);
+        /* --- 4. MOVIE CARD --- */
+        .movie-card {
+            background: #1e1e1e;
             border-radius: 8px;
             overflow: hidden;
-            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
-            border: 1px solid #333;
-            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            text-decoration: none;
+            color: white;
+            display: block; /* Link ko block banao */
         }
-        .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 5px 15px rgba(245, 197, 24, 0.2); }
-
-        .poster-area { position: relative; width: 100%; padding-top: 150%; /* Aspect Ratio */ }
-        .poster-area img {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
-            z-index: 1; 
-        }
-
-        /* Tags Visibility Fix */
-        .tag-quality {
-            position: absolute; top: 0; right: 0;
-            background: var(--accent);
-            color: white; font-size: 10px; font-weight: bold;
-            padding: 3px 8px;
-            border-bottom-left-radius: 6px;
-            box-shadow: -2px 2px 5px rgba(0,0,0,0.5);
-            z-index: 10; 
-        }
-        .tag-lang {
-            position: absolute; bottom: 5px; left: 5px;
-            background: rgba(0,0,0,0.9);
-            color: var(--primary); font-size: 10px; font-weight: bold;
-            padding: 2px 6px; border-radius: 3px;
-            border: 1px solid var(--primary);
-            z-index: 10; 
+        
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(229, 9, 20, 0.3);
         }
 
-        .card-info { padding: 10px; }
-        .title { font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #eee; font-weight: 600; }
-        .meta { font-size: 11px; color: #aaa; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
-
-        /* --- 5. FOOTER --- */
-        footer {
-            background: #000;
-            padding: 30px 20px;
-            text-align: center;
-            border-top: 2px solid #333;
-            margin-top: 20px;
-        }
-        .f-links { margin-bottom: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .f-links a { color: #aaa; font-size: 13px; }
-        .f-links a:hover { color: var(--primary); text-decoration: underline; }
-        .copy { color: #555; font-size: 12px; line-height: 1.6; }
-
-        /* AD CONTAINER STYLE */
-        .ad-container {
-            margin: 15px auto;
-            text-align: center;
-            max-width: 100%;
+        .poster-container {
+            position: relative;
+            height: 240px;
             overflow: hidden;
-            padding: 0 10px;
+        }
+        
+        .movie-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Image ko stretch hone se bachaye */
         }
 
-        /* Loader */
-        #loader { text-align: center; padding: 40px; color: #666; font-size: 14px; }
+        .badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e50914;
+            color: white;
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .movie-info {
+            padding: 12px;
+        }
+
+        .movie-title {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Lambe title ko '...' kare */
+            color: #ddd;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
 
-    <div id="mySidebar" class="sidebar">
-        <button class="closebtn" onclick="closeNav()">&times;</button>
-        <div style="padding: 0 20px; margin-bottom: 20px; color: var(--primary); font-weight: bold; text-transform: uppercase;">Menu</div>
-        
-        <a href="index.html"><i class="fas fa-home"></i> Home</a>
-        <a href="about.html"><i class="fas fa-info-circle"></i> About Us</a>
-        <a href="dmca.html"><i class="fas fa-copyright"></i> DMCA Policy</a>
-        <a href="request.html"><i class="fas fa-paper-plane"></i> Request Movie</a>
-        
-        <div style="padding: 20px 20px 10px; color: var(--primary); font-weight: bold; text-transform: uppercase; border-top: 1px solid #333; margin-top: 10px;">Categories</div>
-        <a href="#" onclick="filterCat('Bollywood'); closeNav()">Bollywood</a>
-        <a href="#" onclick="filterCat('Hollywood'); closeNav()">Hollywood</a>
-        <a href="#" onclick="filterCat('South'); closeNav()">South Movies</a>
-        <a href="#" onclick="filterCat('Web Series'); closeNav()">Web Series</a>
-    </div>
-
     <header>
-        <div class="menu-icon" onclick="openNav()"><i class="fas fa-bars"></i></div>
-        <div class="logo">HDHub<span>4u</span></div>
-        <div style="width: 24px;"></div>
+        <a href="#" class="logo">HDHub4u</a>
+        <div class="search-container">
+            <input type="text" id="searchBox" placeholder="Search movies..." onkeyup="filterMovies()">
+        </div>
     </header>
 
-    <div class="search-wrapper">
-        <input type="text" id="searchInput" class="search-box" placeholder="Search movies, web series...">
-    </div>
-
-    <div class="nav-scroller">
-        <div class="cat-btn active" onclick="filterCat('All', this)">All</div>
-        <div class="cat-btn" onclick="filterCat('Bollywood', this)">Bollywood</div>
-        <div class="cat-btn" onclick="filterCat('Hollywood', this)">Hollywood</div>
-        <div class="cat-btn" onclick="filterCat('South', this)">South Hindi</div>
-        <div class="cat-btn" onclick="filterCat('Web Series', this)">Web Series</div>
-        <div class="cat-btn" onclick="filterCat('Dual Audio', this)">Dual Audio</div>
-    </div>
-
-    <div class="ad-container">
-        <script async="async" data-cfasync="false" src="https://pl28707044.effectivegatecpm.com/74abe61b5683b89c44e7e9bf8e646614/invoke.js"></script>
-        <div id="container-74abe61b5683b89c44e7e9bf8e646614"></div>
-    </div>
-
-    <div class="grid-container" id="movieGrid"></div>
-    <div id="loader">Loading Movies...</div>
-
-    <footer>
-        <div class="f-links">
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="dmca.html">DMCA</a>
-            <a href="request.html">Request Movie</a>
+    <div class="container">
+        <h2 style="border-left: 5px solid #e50914; padding-left: 10px;">Latest Uploads</h2>
+        
+        <div id="movies-grid" class="movies-grid">
+            <h3 style="text-align:center; color:#888;">Loading Movies... 🚀</h3>
         </div>
-        <div class="copy">
-            &copy; 2026 HDHub Clone. All rights reserved.<br>
-            Disclaimer: This site does not store any files on its server.
-        </div>
-    </footer>
+    </div>
 
     <script>
-        function openNav() { document.getElementById("mySidebar").style.width = "280px"; }
-        function closeNav() { document.getElementById("mySidebar").style.width = "0"; }
-    </script>
+        // Aapka Firebase URL
+        const FIREBASE_URL = "https://education-921c2-default-rtdb.firebaseio.com";
+        
+        let allMoviesData = []; // Search ke liye data yahan save rahega
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+        async function fetchMovies() {
+            try {
+                // 1. Firebase se data mangvao
+                const response = await fetch(`${FIREBASE_URL}/movies.json`);
+                const data = await response.json();
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-8OSQlYP091sHcZQfCJmFFXsKxJxDC8Q",
-            authDomain: "education-921c2.firebaseapp.com",
-            databaseURL: "https://education-921c2-default-rtdb.firebaseio.com",
-            projectId: "education-921c2",
-            storageBucket: "education-921c2.firebasestorage.app",
-            messagingSenderId: "529451695233",
-            appId: "1:529451695233:web:4940277f4d953c05886180"
-        };
+                const grid = document.getElementById('movies-grid');
+                grid.innerHTML = ""; // "Loading..." hatao
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+                if (!data) {
+                    grid.innerHTML = "<p>No movies found. Please run the Python Scraper.</p>";
+                    return;
+                }
 
-        const grid = document.getElementById('movieGrid');
-        const loader = document.getElementById('loader');
-        let allMovies = [];
-
-        onValue(ref(db, 'movies'), (snapshot) => {
-            const data = snapshot.val();
-            grid.innerHTML = "";
-            loader.style.display = 'none';
-            allMovies = [];
-
-            if(data) {
-                Object.keys(data).forEach(key => {
-                    allMovies.push({ id: key, ...data[key] });
+                // 2. Data ko Object se Array me badlo
+                // Firebase return karta hai: { "animal_2023": {...}, "tiger_3": {...} }
+                // Hum ise array banayenge taki loop chala sakein
+                allMoviesData = Object.keys(data).map(key => {
+                    return {
+                        id: key,       // Ye hai wo ID jo hume chahiye (animal_2023)
+                        ...data[key]   // Baaki data (title, poster, etc.)
+                    };
                 });
-                allMovies.reverse();
-                render(allMovies);
-            } else {
-                grid.innerHTML = "<p style='text-align:center; width:100%; color:#888;'>No movies found.</p>";
-            }
-        });
 
-        window.render = function(list) {
-            grid.innerHTML = "";
-            if(list.length === 0) {
-                grid.innerHTML = "<p style='text-align:center; width:100%; color:#888;'>No matches found.</p>";
+                // 3. New movies pehle dikhao (Reverse order)
+                // (Ya aap updatedAt timestamp se sort kar sakte hain)
+                allMoviesData.reverse(); 
+
+                // 4. Screen par dikhao
+                renderMovies(allMoviesData);
+
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('movies-grid').innerHTML = "<p style='color:red;'>Failed to load movies.</p>";
+            }
+        }
+
+        function renderMovies(movies) {
+            const grid = document.getElementById('movies-grid');
+            grid.innerHTML = ""; // Purana saaf karo
+
+            if(movies.length === 0) {
+                grid.innerHTML = "<p>No movies match your search.</p>";
                 return;
             }
 
-            list.forEach(m => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => location.href = `details.html?id=${m.id}`;
-
-                const poster = m.poster || 'https://via.placeholder.com/200x300?text=No+Poster';
-                const quality = m.quality || 'HD';
-                const lang = m.language || 'Hindi';
-                const rating = m.rating || 'N/A';
-                const year = m.year || '2024';
-
-                card.innerHTML = `
-                    <div class="poster-area">
-                        <div class="tag-quality">${quality}</div>
-                        <div class="tag-lang">${lang}</div>
-                        <img src="${poster}" loading="lazy" alt="${m.title}">
-                    </div>
-                    <div class="card-info">
-                        <p class="title">${m.title}</p>
-                        <div class="meta">
-                            <span>${year}</span>
-                            <span style="color:var(--primary); font-weight:bold;"><i class="fas fa-star"></i> ${rating}</span>
+            movies.forEach(movie => {
+                // Default Poster agar image load na ho
+                const poster = movie.poster || "https://via.placeholder.com/160x240?text=No+Poster";
+                
+                // 🔥 MAIN LOGIC: Link me ID pass karna
+                // details.html?id=movie_id
+                const movieHtml = `
+                    <a href="details.html?id=${movie.id}" class="movie-card">
+                        <div class="poster-container">
+                            <span class="badge">${movie.quality || 'HD'}</span>
+                            <img src="${poster}" alt="${movie.title}" loading="lazy">
                         </div>
-                    </div>
+                        <div class="movie-info">
+                            <h3 class="movie-title">${movie.title}</h3>
+                            <div class="meta-info">
+                                <span>${movie.language || 'Hindi'}</span>
+                                <span>⭐ ${movie.rating || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </a>
                 `;
-                grid.appendChild(card);
+                grid.innerHTML += movieHtml;
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allMovies.filter(m => m.title.toLowerCase().includes(term));
-            render(filtered);
-        });
-
-        window.filterCat = function(category, btn) {
-            if(btn) {
-                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-            if(category === 'All') {
-                render(allMovies);
-            } else {
-                const filtered = allMovies.filter(m => m.category === category);
-                render(filtered);
-            }
+        // Search Function
+        function filterMovies() {
+            const query = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = allMoviesData.filter(movie => 
+                movie.title.toLowerCase().includes(query)
+            );
+            renderMovies(filtered);
         }
+
+        // Page load hote hi movies lao
+        fetchMovies();
     </script>
 
 </body>
