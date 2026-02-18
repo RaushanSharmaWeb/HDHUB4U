@@ -3,44 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Details - HDHub4u Clone</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <title>Movie Download - HDHub4u Clone</title>
     <style>
-        /* --- 1. DARK THEME & VARIABLES --- */
-        :root {
-            --primary: #e50914; /* Netflix Red */
-            --dark: #141414;
-            --light: #ffffff;
-            --gray: #aaa;
-            --bg-overlay: rgba(0, 0, 0, 0.85);
-        }
-
+        /* --- ORIGINAL SIMPLE CSS --- */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
-            color: var(--light);
+            font-family: sans-serif;
+            background-color: #111; /* Dark Black Background */
+            color: #fff;
             margin: 0;
             padding: 0;
-            overflow-x: hidden; /* Horizontal scroll roko */
         }
 
-        /* --- 2. HEADER --- */
+        /* Simple Header */
         header {
-            background: rgba(0,0,0,0.8);
-            padding: 15px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #333;
+            background-color: #222;
+            padding: 15px;
+            border-bottom: 2px solid #e50914;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo {
-            color: var(--primary);
+            color: #e50914;
             font-size: 24px;
             font-weight: bold;
             text-decoration: none;
@@ -49,202 +34,136 @@
         .home-btn {
             background: #333;
             color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 8px 12px;
             text-decoration: none;
+            border-radius: 4px;
             font-size: 14px;
-            transition: 0.3s;
-        }
-        .home-btn:hover { background: var(--primary); }
-
-        /* --- 3. BACKGROUND BLUR EFFECT --- */
-        .bg-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-size: cover;
-            background-position: center;
-            filter: blur(20px) brightness(0.3);
-            transform: scale(1.1); /* White edges hatane ke liye */
         }
 
-        /* --- 4. MOVIE CONTAINER --- */
+        /* Container */
         .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 20px;
-            background: rgba(20, 20, 20, 0.9); /* Glassmorphism */
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex;
-            flex-wrap: wrap; /* Mobile ke liye wrap */
-            gap: 30px;
-            position: relative;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 15px;
+            background: #1a1a1a; /* Thoda sa light black card */
+            border-radius: 5px;
         }
 
-        /* LEFT SIDE: POSTER */
-        .poster-wrapper {
+        /* Movie Layout */
+        .movie-header {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap; /* Mobile friendly */
+        }
+
+        .poster img {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .movie-info {
             flex: 1;
             min-width: 250px;
-            max-width: 300px;
-            margin: 0 auto; /* Center on mobile */
         }
 
-        .poster-wrapper img {
-            width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            border: 2px solid #333;
+        h1 {
+            color: #e50914;
+            margin-top: 0;
+            font-size: 24px;
         }
 
-        /* RIGHT SIDE: INFO */
-        .info-wrapper {
-            flex: 2;
-            min-width: 300px;
-        }
-
-        .movie-title {
-            font-size: 32px;
-            margin: 0 0 15px 0;
-            color: var(--primary);
-            text-shadow: 2px 2px 4px black;
-        }
-
-        .meta-tags {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .tag {
-            background: #333;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #ddd;
-            border: 1px solid #444;
+        .meta p {
+            margin: 5px 0;
+            color: #ccc;
+            font-size: 14px;
         }
 
         .plot-box {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-            color: #ccc;
-            font-size: 15px;
-            border-left: 4px solid var(--primary);
+            margin-top: 20px;
+            padding: 10px;
+            background: #222;
+            border-left: 3px solid #e50914;
+            color: #ddd;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        /* --- 5. DOWNLOAD SECTION --- */
+        /* Download Section */
         .download-section {
-            width: 100%;
-            margin-top: 20px;
+            margin-top: 30px;
             border-top: 1px solid #333;
             padding-top: 20px;
         }
 
-        .download-title {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
+        h3 { color: white; border-bottom: 1px solid #333; padding-bottom: 10px; }
 
         .dl-btn {
-            background: linear-gradient(45deg, #d32f2f, #b71c1c);
+            display: block;
+            background-color: #e50914;
             color: white;
             padding: 12px;
+            margin-bottom: 10px;
             text-align: center;
             text-decoration: none;
-            border-radius: 6px;
             font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: 1px solid #ff5252;
+            border-radius: 4px;
+            transition: background 0.3s;
         }
 
         .dl-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
-            background: linear-gradient(45deg, #e53935, #c62828);
+            background-color: #b2070f;
         }
 
-        .dl-btn span {
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        /* Mobile Fix */
+        @media (max-width: 600px) {
+            .poster img { width: 100%; height: auto; }
+            .movie-header { flex-direction: column; }
         }
 
-        /* Loading Spinner */
-        #loader {
-            text-align: center;
-            margin-top: 100px;
-            font-size: 24px;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            .poster-wrapper { max-width: 200px; }
-            .movie-title { font-size: 24px; text-align: center; }
-            .meta-tags { justify-content: center; }
-        }
+        /* Loader */
+        #loader { text-align: center; padding: 50px; color: #777; }
     </style>
 </head>
 <body>
 
-    <div id="bg-backdrop" class="bg-backdrop"></div>
-
     <header>
         <a href="index.html" class="logo">HDHub4u</a>
-        <a href="index.html" class="home-btn"><i class="fas fa-home"></i> Home</a>
+        <a href="index.html" class="home-btn">🏠 Home</a>
     </header>
 
-    <div id="loader">Fetching Movie Details... 🚀</div>
+    <div id="loader">Loading Movie Details... ⏳</div>
 
-    <div class="container" id="movie-content" style="display: none;">
+    <div class="container" id="content" style="display: none;">
         
-        <div class="poster-wrapper">
-            <img id="poster-img" src="" alt="Movie Poster">
-        </div>
-
-        <div class="info-wrapper">
-            <h1 id="movie-title" class="movie-title">Loading Title...</h1>
-            
-            <div class="meta-tags" id="meta-tags">
-                </div>
-
-            <h3><i class="fas fa-book-open"></i> Storyline</h3>
-            <div id="movie-plot" class="plot-box">
-                Loading synopsis...
+        <div class="movie-header">
+            <div class="poster">
+                <img id="poster-img" src="" alt="Poster">
             </div>
-
-            <div class="download-section">
-                <div class="download-title">
-                    <i class="fas fa-download"></i> Download Links
+            <div class="movie-info">
+                <h1 id="title">Loading...</h1>
+                <div class="meta">
+                    <p><strong>Quality:</strong> <span id="quality">HD</span></p>
+                    <p><strong>Language:</strong> <span id="language">Hindi</span></p>
+                    <p><strong>Size:</strong> <span id="size">N/A</span></p>
+                    <p><strong>Category:</strong> <span id="category">Bollywood</span></p>
+                    <p><strong>Rating:</strong> ⭐ <span id="rating">N/A</span></p>
                 </div>
-                <div id="links-container" class="links-grid">
-                    </div>
             </div>
         </div>
+
+        <div class="plot-box">
+            <strong>Synopsis:</strong> <span id="plot">Loading...</span>
+        </div>
+
+        <div class="download-section">
+            <h3>Download Links</h3>
+            <div id="links-container">
+                </div>
+        </div>
+
     </div>
 
     <script>
@@ -252,94 +171,69 @@
         const urlParams = new URLSearchParams(window.location.search);
         const movieId = urlParams.get('id');
 
-        // Firebase URL
+        // 🔥 Aapka Firebase URL
         const FIREBASE_URL = "https://education-921c2-default-rtdb.firebaseio.com";
 
-        async function loadMovieDetails() {
+        async function loadMovie() {
             const loader = document.getElementById('loader');
-            const content = document.getElementById('movie-content');
-            
-            // Agar ID nahi hai to error dikhao
+            const content = document.getElementById('content');
+
             if (!movieId) {
-                loader.innerHTML = "❌ Error: No Movie ID Found!";
+                loader.innerHTML = "<h2 style='color:red'>❌ Error: No Movie ID Found!</h2>";
                 return;
             }
 
             try {
-                // 🔥 FAST FETCH: Sirf ek movie ka data mango
+                // 🔥 FAST FETCH: Sirf 1 Movie ka data maango
                 const response = await fetch(`${FIREBASE_URL}/movies/${movieId}.json`);
                 const movie = await response.json();
 
                 if (!movie) {
-                    loader.innerHTML = "❌ Error: Movie Not Found in Database.";
+                    loader.innerHTML = "<h2 style='color:red'>⚠️ Movie Not Found!</h2>";
                     return;
                 }
 
-                // --- DATA DISPLAY --- //
+                // --- DATA DISPLAY ---
+                document.getElementById('title').innerText = movie.title;
+                document.getElementById('poster-img').src = movie.poster || "https://via.placeholder.com/200x300";
+                document.getElementById('plot').innerText = movie.plot || "No description available.";
 
-                // 1. Background & Poster
-                // Agar poster nahi hai to default lagao
-                const posterUrl = movie.poster || "https://via.placeholder.com/300x450?text=No+Poster";
-                document.getElementById('poster-img').src = posterUrl;
-                
-                // Background me blur effect lagao
-                document.getElementById('bg-backdrop').style.backgroundImage = `url('${posterUrl}')`;
+                // Metadata
+                document.getElementById('quality').innerText = movie.quality || "HD";
+                document.getElementById('language').innerText = movie.language || "Hindi";
+                document.getElementById('size').innerText = movie.size || "N/A";
+                document.getElementById('category').innerText = movie.category || "General";
+                document.getElementById('rating').innerText = movie.rating || "N/A";
 
-                // 2. Title & Plot
-                document.getElementById('movie-title').innerText = movie.title;
-                document.getElementById('movie-plot').innerText = movie.plot || "No description available for this movie.";
-
-                // 3. Meta Tags (Quality, Language, Size, etc.)
-                const metaContainer = document.getElementById('meta-tags');
-                
-                // Helper function tag banane ke liye
-                const addTag = (icon, text) => {
-                    if(text && text !== 'N/A') {
-                        metaContainer.innerHTML += `<span class="tag"><i class="${icon}"></i> ${text}</span>`;
-                    }
-                };
-
-                addTag('fas fa-star', movie.rating ? `${movie.rating}/10` : 'N/A');
-                addTag('fas fa-video', movie.quality);
-                addTag('fas fa-language', movie.language);
-                addTag('fas fa-hdd', movie.size);
-                addTag('fas fa-film', movie.category);
-
-                // 4. Download Buttons Loop
-                const linksContainer = document.getElementById('links-container');
-                linksContainer.innerHTML = ""; // Clear old
+                // Links Logic
+                const linksBox = document.getElementById('links-container');
+                linksBox.innerHTML = ""; // Clear old links
 
                 if (movie.links && movie.links.length > 0) {
                     movie.links.forEach(link => {
                         const btn = document.createElement('a');
                         btn.href = link.url;
-                        btn.target = "_blank"; // New tab me khulega
                         btn.className = "dl-btn";
-                        
-                        // Button Text Logic
-                        // Agar link name me "720p" hai to icon alag lagao
-                        let icon = "fas fa-cloud-download-alt";
-                        if(link.name.includes("Drive") || link.name.includes("G-Direct")) icon = "fab fa-google-drive";
-                        
-                        btn.innerHTML = `<i class="${icon}"></i> <span>${link.name}</span>`;
-                        linksContainer.appendChild(btn);
+                        btn.target = "_blank";
+                        btn.innerHTML = `⬇️ Download ${link.name}`;
+                        linksBox.appendChild(btn);
                     });
                 } else {
-                    linksContainer.innerHTML = "<p style='color:orange;'>⚠️ No download links available yet.</p>";
+                    linksBox.innerHTML = "<p style='color:orange'>Links coming soon...</p>";
                 }
 
-                // Sab set hone ke baad Loader chupao aur Content dikhao
+                // Show Content
                 loader.style.display = 'none';
-                content.style.display = 'flex';
+                content.style.display = 'block';
 
             } catch (error) {
                 console.error(error);
-                loader.innerHTML = "❌ Server Error. Please try again later.";
+                loader.innerHTML = "<h2 style='color:red'>Server Error!</h2>";
             }
         }
 
-        // Run function immediately
-        loadMovieDetails();
+        // Run immediately
+        loadMovie();
     </script>
 
 </body>
